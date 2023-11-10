@@ -2,6 +2,7 @@ import { createEffect, createSignal, Show } from "solid-js";
 import { Input, Button, VStack, HStack, Anchor } from "@hope-ui/solid";
 import { FormControl, FormLabel, FormErrorMessage } from "@hope-ui/solid";
 import { Link } from "@solidjs/router";
+import { apiUrl, checkLoggedIn } from "../utils";
 
 export default function Register() {
     const [usernameStatus, setUsernameStatus] = createSignal(false);
@@ -36,7 +37,7 @@ export default function Register() {
 
     function sendVerifyCode() {
         // 在这里发送验证码
-        fetch('http://127.0.0.1:4523/m1/3494933-0-default/users/request-verification-code', {
+        fetch(`${apiUrl}/users/request-verification-code`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

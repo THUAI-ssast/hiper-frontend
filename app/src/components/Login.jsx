@@ -1,9 +1,16 @@
-import { createEffect, createSignal, Show } from "solid-js";
+import { createEffect, createSignal, Show, onMount } from "solid-js";
 import { Input, Button, Center, VStack, Spacer, HStack, Anchor } from "@hope-ui/solid";
 import { FormControl, FormLabel, FormHelperText, FormErrorMessage } from "@hope-ui/solid";
 import { Link, useNavigate } from "@solidjs/router";
+import { setLoggedIn, loggedIn } from "./Header";
+
+import { apiUrl, checkLoggedIn } from "../utils";
 
 export default function Login() {
+    onMount(() => {
+        setLoggedIn(localStorage.getItem("jwt") !== null);
+    });
+
     const [formData, setFormData] = createSignal({
         account: '',
         password: ''
@@ -13,7 +20,43 @@ export default function Login() {
     function handleSubmit(event) {
         event.preventDefault();
         // 在这里处理表单提交逻辑，发送验证码等
-
+        let body = {}
+        if (formData().account.includes('@')) {
+            body = {
+                email: formData().account,
+                password: formData().password
+            }
+        } else {
+            body = {
+                username: formData().account,
+                password: formData().password
+            }
+        }
+        fetch(`${apiUrl}/user/login`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            }
+        )
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then((data) => {
+                const accessToken = data.access_token;
+                setLoggedIn(true);
+                localStorage.setItem('jwt', accessToken);
+                navigate('/')
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
     }
 
     const navigate = useNavigate();
