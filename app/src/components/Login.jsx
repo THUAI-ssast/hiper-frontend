@@ -31,9 +31,15 @@ export default function Login() {
                     <Input type="password" value={formData().password} onInput={(e) => setFormData({ ...formData(), password: e.target.value })} />
                 </FormControl>
 
-                <Anchor as={Link} href="/register" margin="10px">
-                    还没有账号？去注册
-                </Anchor>
+                <HStack width="400px">
+                    <Anchor as={Link} href="/register" margin="10px">
+                        还没有账号？去注册
+                    </Anchor>
+                    <Spacer dir="auto" />
+                    <Anchor as={Link} href="/reset" margin="10px">
+                        忘记密码？
+                    </Anchor>
+                </HStack>
 
                 <Button id="loginButton" type="submit" margin="10px">登录</Button>
 

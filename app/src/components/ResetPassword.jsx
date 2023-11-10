@@ -1,19 +1,16 @@
 import { createEffect, createSignal, Show } from "solid-js";
-import { Input, Button, VStack, HStack, Anchor } from "@hope-ui/solid";
+import { Input, Button, VStack, HStack } from "@hope-ui/solid";
 import { FormControl, FormLabel, FormErrorMessage } from "@hope-ui/solid";
-import { Link } from "@solidjs/router";
 
-export default function Register() {
-    const [usernameStatus, setUsernameStatus] = createSignal(false);
+export default function ResetPassword() {
     const [emailStatus, setEmailStatus] = createSignal(false);
+    const [verifyCodeStatus, setVerifyCodeStatus] = createSignal(false);
     const [passwordStatus, setPasswordStatus] = createSignal(false);
     const [confirmPasswordStatus, setConfirmPasswordStatus] = createSignal(false);
-    const [verifyCodeStatus, setVerifyCodeStatus] = createSignal(false);
 
     const [countDown, setCountDown] = createSignal(0);
 
     const [formData, setFormData] = createSignal({
-        username: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -47,22 +44,6 @@ export default function Register() {
                 console.log(data);
             });
         setCountDown(60);
-    }
-
-    function usernameInvalid() {
-        if (formData().username.length < 3) {
-            return true;
-        }
-        return false;
-    }
-
-    function usernameUpdate(event) {
-        const pattern = /^[_a-zA-Z0-9]+$/;
-        if (!pattern.test(event.target.value)) {
-            event.target.value = event.target.value.slice(0, -1);
-        }
-        setFormData({ ...formData(), username: event.target.value });
-        setUsernameStatus(usernameInvalid());
     }
 
     function emailInvalid() {
@@ -122,16 +103,6 @@ export default function Register() {
     return (
         <form onSubmit={handleSubmit} >
             <VStack margin="auto" maxW="400px">
-                <FormControl required margin="10px" invalid={usernameStatus()}>
-
-                    <FormLabel for="username">用户名</FormLabel>
-                    <Input type="text" value={formData().username} onInput={(e) => usernameUpdate(e)} />
-                    <Show
-                        when={usernameInvalid()}
-                    >
-                        <FormErrorMessage>用户名长度至少为3</FormErrorMessage>
-                    </Show>
-                </FormControl>
 
                 <FormControl required margin="10px" invalid={emailStatus()}>
                     <FormLabel for="email">邮箱</FormLabel>
@@ -157,7 +128,7 @@ export default function Register() {
                 </FormControl>
 
                 <FormControl required margin="10px" invalid={passwordStatus()}>
-                    <FormLabel for="password">密码</FormLabel>
+                    <FormLabel for="password">新密码</FormLabel>
                     <Input type="password" value={formData().password} onInput={(e) => passwordUpdate(e)} />
                     <Show
                         when={passwordInvalid()}
@@ -167,7 +138,7 @@ export default function Register() {
                 </FormControl>
 
                 <FormControl required margin="10px" invalid={confirmPasswordStatus()}>
-                    <FormLabel for="confirmPassword">确认密码</FormLabel>
+                    <FormLabel for="confirmPassword">确认新密码</FormLabel>
                     <Input type="password" value={formData().confirmPassword} onInput={(e) => confirmPasswordUpdate(e)} />
                     <Show
                         when={confirmPasswordInvalid()}
@@ -176,11 +147,7 @@ export default function Register() {
                     </Show>
                 </FormControl>
 
-                <Anchor as={Link} href="/login" margin="10px">
-                    已经有账号了？去登录
-                </Anchor>
-
-                <Button id="submitButton" disabled={usernameStatus() || emailStatus() || passwordStatus() || confirmPasswordStatus() || verifyCodeStatus()} type="submit" margin="10px">注册</Button>
+                <Button id="submitButton" disabled={emailStatus() || passwordStatus() || confirmPasswordStatus() || verifyCodeStatus()} type="submit" margin="10px">重置密码</Button>
             </VStack>
         </form>
     );
