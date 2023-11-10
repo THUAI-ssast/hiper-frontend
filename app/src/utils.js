@@ -2,4 +2,4 @@ export function checkLoggedIn() {
     return localStorage.getItem('jwt') !== null;
 }
 
-export var apiUrl = 'http://localhost:3000/api';
+export var apiUrl = 'https://mock.apifox.com/m1/3494933-0-default';
