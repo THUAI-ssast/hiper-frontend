@@ -1,25 +1,20 @@
-import { lazy } from "solid-js";
-import { Routes,Route } from 'solid-app-router';
-import { Container } from "solid-bootstrap";
+import { Route, Router, Routes } from "@solidjs/router";
+import Header from "./components/Header";
 
-const Product = lazy(() => import("./routes/Product"));
-const Products = lazy(() => import("./routes/Products"));
+import "./index.css"
+import Login from "./components/Login";
+import Register from "./components/Register";
 
 function App() {
   return (
-    <Container class="pb-5">      
+    <>
+      <Header />
       <Routes>
-        <Route path="/Introduce" element={<Introduce />}   />
-        <Route path="/ContestInfo" element={<ContestInfo />}   />
-        <Route path="/PersonalSpace" element={<PersonalSpace />}   />
-        <Route path="/ContestFound" element={<ContestFound />}   />
-        <Route path="/MySubmit" element={<MySubmit />}   />
-        {/*自定义*/}
-        <Route path="/abc" element={<Introduce />}   />
-        <Route path="/Isda" element={<Introduce />}   />
-        <Route path="/asdae" element={<Introduce />}   />
+        <Route path="/login" component={Login}/>
+        <Route path="/register" component={Register}/>
       </Routes>
-    </Container>
+    </>
   );
 }
+
 export default App;
