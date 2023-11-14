@@ -2,12 +2,13 @@ import { Avatar, Input, InputGroup, InputLeftElement, VStack, HStack, Image, Box
 import { Link, useParams } from "@solidjs/router";
 import { onMount, createSignal, For, Show } from "solid-js";
 import { Icon } from "@hope-ui/solid";
-import { BiRegularGroup, BiRegularMailSend, BiRegularPhone, BiRegularRename, BiSolidFlag, BiSolidSchool, BiRegularDetail } from "solid-icons/bi";
+import { BiRegularGroup, BiRegularMailSend, BiSolidFlag, BiSolidSchool, BiRegularDetail } from "solid-icons/bi";
 import { apiUrl } from "../utils";
 
 export default function Users() {
     const params = useParams();
 
+    const [isMe, setIsMe] = createSignal(false);
     const [user, setUser] = createSignal({});
 
     onMount(() => {
@@ -39,34 +40,35 @@ export default function Users() {
             <VStack width="400px" padding="30px" borderRight="1px solid #ccc" boxShadow="2px 0 4px rgba(0, 0, 0, 0.2)">
                 <Image as={Avatar} boxSize="300px" src="https://vip.helloimg.com/images/2023/11/10/odW46g.png" />
 
-                <Input value={user().nickname} mt="10px" variant="unstyled" fontSize="30px" placeholder="昵称" />
-                <Input value={`@${user().username}`} variant="unstyled" color="#777777" fontSize="20px" placeholder="用户名" />
+                <Input ml="20px" value={user().nickname} disabled={!isMe()} mt="10px" variant="unstyled" fontSize="30px" placeholder="昵称" />
+                <Input ml="20px" value={`@${user().username}`} disabled={true} variant="unstyled" color="#777777" fontSize="20px" placeholder="用户名" />
                 <InputGroup mt="20px">
                     <InputLeftElement>
                         <Icon as={BiRegularGroup} />
                     </InputLeftElement>
-                    <Input value={user().name} variant="filled" backgroundColor="white" placeholder="姓名" />
+                    <Input value={user().name} variant="filled" disabled={!isMe} backgroundColor={isMe ? "#eeeeee" : "white"} placeholder="姓名" />
                 </InputGroup>
                 <InputGroup mt="20px">
                     <InputLeftElement>
                         <Icon as={BiRegularMailSend} />
                     </InputLeftElement>
-                    <Input value={user().email} variant="filled" placeholder="邮箱" />
+                    <Input value={user().email} variant="filled" disabled={!isMe} backgroundColor={isMe ? "#eeeeee" : "white"} placeholder="邮箱" />
                 </InputGroup>
                 <HStack>
                     <InputGroup mt="20px" mr="10px">
                         <InputLeftElement>
                             <Icon as={BiSolidSchool} />
                         </InputLeftElement>
-                        <Input value={user().school} variant="filled" placeholder="学校" />
+                        <Input value={user().school} variant="filled" disabled={!isMe} backgroundColor={isMe ? "#eeeeee" : "white"} placeholder="学校" />
                     </InputGroup>
                     <InputGroup mt="20px">
                         <InputLeftElement>
                             <Icon as={BiSolidFlag} />
                         </InputLeftElement>
-                        <Input value={user().department} variant="filled" placeholder="院系" />
+                        <Input value={user().department} variant="filled" disabled={!isMe} backgroundColor={isMe ? "#eeeeee" : "white"} placeholder="院系" />
                     </InputGroup>
                 </HStack>
+                {isMe && <Button variant="ghost" mt="20px" color={"#666666"}>更改资料</Button>}
             </VStack >
             <Box flex={1} overflow="auto" overflowY="auto">
                 <Text fontSize="30px" fontWeight="$bold" textAlign="start" margin="50px 0 0 50px">
@@ -83,23 +85,23 @@ export default function Users() {
                                         </Text>
                                         <Show when={contest.states.commit_ai_enabled}
                                             fallback={
-                                                <Tag colorScheme="danger">已关闭</Tag>
+                                                <Tag colorScheme="danger" size="lg">已结束</Tag>
                                             }
                                         >
-                                            <Tag colorScheme="success">进行中</Tag>
+                                            <Tag colorScheme="success" size="lg">进行中</Tag>
                                         </Show>
                                         <AccordionIcon />
                                     </AccordionButton>
                                 </h2>
                                 <Box as={AccordionPanel} height="200px">
-                                    <HStack height="200px">
-                                        <Flex direction={"column"}>
+                                    <HStack height="200px" ml="20px">
+                                        <Flex direction={"column"} height="150px">
                                             <Text fontWeight="$bold" textAlign="start">
                                                 <Icon as={BiRegularGroup} />
                                                 {contest.my_privilege}
                                             </Text>
 
-                                            <Text flex={1} fontWeight="$medium" textAlign="start">
+                                            <Text flex={1} fontWeight="$medium">
                                                 <Icon as={BiRegularDetail} />
                                                 {contest.metadata.readme}
                                             </Text>
@@ -110,7 +112,7 @@ export default function Users() {
                                         </Flex>
 
                                         <Spacer />
-                                        <Image height="200px" src="https://vip.helloimg.com/images/2023/11/10/odW46g.png" />
+                                        <Image height="160px" margin="20px" src="https://vip.helloimg.com/images/2023/11/10/odW46g.png" />
                                     </HStack>
 
                                 </Box>
