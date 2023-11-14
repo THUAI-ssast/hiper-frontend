@@ -1,8 +1,8 @@
-import { Avatar, Input, InputGroup, InputLeftElement, VStack, HStack, Image, Box, Spacer } from "@hope-ui/solid";
-import { useParams } from "@solidjs/router";
-import { onMount, createSignal } from "solid-js";
+import { Avatar, Input, InputGroup, InputLeftElement, VStack, HStack, Image, Box, Flex, Accordion, AccordionItem, AccordionButton, AccordionIcon, Text, AccordionPanel, Spacer, Button, Tag } from "@hope-ui/solid";
+import { Link, useParams } from "@solidjs/router";
+import { onMount, createSignal, For, Show } from "solid-js";
 import { Icon } from "@hope-ui/solid";
-import { BiRegularAt, BiRegularBusSchool, BiRegularGroup, BiRegularMailSend, BiRegularPhone, BiRegularRename, BiSolidFlag, BiSolidSchool } from "solid-icons/bi";
+import { BiRegularGroup, BiRegularMailSend, BiRegularPhone, BiRegularRename, BiSolidFlag, BiSolidSchool, BiRegularDetail } from "solid-icons/bi";
 import { apiUrl } from "../utils";
 
 export default function Users() {
@@ -35,9 +35,9 @@ export default function Users() {
     });
 
     return (
-        <Box bgColor="#dddddd" padding="30px" flexGrow={1} maxW="460px">
-            < VStack maxWidth="400px">
-                <Image as={Avatar} boxSize="auto" src="https://vip.helloimg.com/images/2023/11/10/odW46g.png" mt="20px" />
+        <Flex flex={1} direction="row">
+            <VStack width="400px" padding="30px" borderRight="1px solid #ccc" boxShadow="2px 0 4px rgba(0, 0, 0, 0.2)">
+                <Image as={Avatar} boxSize="300px" src="https://vip.helloimg.com/images/2023/11/10/odW46g.png" />
 
                 <Input value={user().nickname} mt="10px" variant="unstyled" fontSize="30px" placeholder="昵称" />
                 <Input value={`@${user().username}`} variant="unstyled" color="#777777" fontSize="20px" placeholder="用户名" />
@@ -45,7 +45,7 @@ export default function Users() {
                     <InputLeftElement>
                         <Icon as={BiRegularGroup} />
                     </InputLeftElement>
-                    <Input value={user().name} variant="filled" placeholder="姓名" />
+                    <Input value={user().name} variant="filled" backgroundColor="white" placeholder="姓名" />
                 </InputGroup>
                 <InputGroup mt="20px">
                     <InputLeftElement>
@@ -68,6 +68,58 @@ export default function Users() {
                     </InputGroup>
                 </HStack>
             </VStack >
-        </Box>
+            <Box flex={1} overflow="auto" overflowY="auto">
+                <Text fontSize="30px" fontWeight="$bold" textAlign="start" margin="50px 0 0 50px">
+                    已经参加了{(user().contests_registered || []).length}场比赛
+                </Text>
+                <Accordion margin="50px" borderRadius="10px" boxShadow="1px 1px 8px rgba(0, 0, 0, 0.35)" border="2px gray">
+                    <For each={user().contests_registered}>
+                        {(contest) => (
+                            <AccordionItem border="1px" >
+                                <h2>
+                                    <AccordionButton height="60px">
+                                        <Text flex={1} fontWeight="$bold" fontSize="20px" textAlign="start">
+                                            {contest.metadata.title}
+                                        </Text>
+                                        <Show when={contest.states.commit_ai_enabled}
+                                            fallback={
+                                                <Tag colorScheme="danger">已关闭</Tag>
+                                            }
+                                        >
+                                            <Tag colorScheme="success">进行中</Tag>
+                                        </Show>
+                                        <AccordionIcon />
+                                    </AccordionButton>
+                                </h2>
+                                <Box as={AccordionPanel} height="200px">
+                                    <HStack height="200px">
+                                        <Flex direction={"column"}>
+                                            <Text fontWeight="$bold" textAlign="start">
+                                                <Icon as={BiRegularGroup} />
+                                                {contest.my_privilege}
+                                            </Text>
+
+                                            <Text flex={1} fontWeight="$medium" textAlign="start">
+                                                <Icon as={BiRegularDetail} />
+                                                {contest.metadata.readme}
+                                            </Text>
+
+                                            <Button as={Link} href={`/matches/${contest.id}`} variant="outline" colorScheme="blue" size="sm" mt="10px">
+                                                查看详情
+                                            </Button>
+                                        </Flex>
+
+                                        <Spacer />
+                                        <Image height="200px" src="https://vip.helloimg.com/images/2023/11/10/odW46g.png" />
+                                    </HStack>
+
+                                </Box>
+                            </AccordionItem>
+                        )}
+                    </For>
+                </Accordion>
+
+            </Box>
+        </Flex >
     )
 }

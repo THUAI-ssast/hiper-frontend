@@ -7,10 +7,16 @@ import Register from "./components/Register";
 import ResetPassword from "./components/ResetPassword";
 import Homepage from "./components/Homepage";
 import Users from "./components/Users";
+import { onMount } from "solid-js";
+import { checkLoggedIn } from "./utils";
+import { Flex } from "@hope-ui/solid";
 
 function App() {
+  onMount(() => {
+    checkLoggedIn();
+  });
   return (
-    <>
+    <Flex direction="column" height="100%">
       <Header />
       <Routes>
         <Route path="/login" component={Login} />
@@ -20,7 +26,7 @@ function App() {
         <Route path="/" element={Homepage} />
         <Route path="*" element={<p>404 Not Found</p>} />
       </Routes>
-    </>
+    </Flex>
   );
 }
 
