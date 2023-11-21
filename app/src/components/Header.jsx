@@ -1,7 +1,7 @@
 import { A, Link, useNavigate } from "@solidjs/router";
 import { HStack, Heading, Spacer, Box, Button, Image, Anchor, Avatar, Menu, MenuTrigger, MenuItem, MenuContent } from "@hope-ui/solid";
 import logo from '../logo.svg';
-import { Switch, createEffect, createSignal, onMount, createMemo, Show } from "solid-js";
+import { createEffect, createSignal, onMount, createMemo, Show } from "solid-js";
 import "../assets/Avatar.png";
 import { checkLoggedIn } from "../utils";
 
@@ -25,8 +25,8 @@ function Header() {
     navigate('/');
   }
 
-  onMount(() => {
-    checkLoggedIn();
+  createEffect(() => {
+    setLoggedIn(checkLoggedIn());
   });
 
   return (

@@ -12,9 +12,6 @@ import { checkLoggedIn } from "./utils";
 import { Flex } from "@hope-ui/solid";
 
 function App() {
-  onMount(() => {
-    checkLoggedIn();
-  });
   return (
     <Flex direction="column" height="100%">
       <Header />

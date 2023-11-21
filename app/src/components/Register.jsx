@@ -2,7 +2,7 @@ import { createEffect, createSignal, Show } from "solid-js";
 import { Input, Button, VStack, HStack, Anchor } from "@hope-ui/solid";
 import { FormControl, FormLabel, FormErrorMessage } from "@hope-ui/solid";
 import { Link } from "@solidjs/router";
-import { apiUrl, checkLoggedIn } from "../utils";
+import { apiUrl } from "../utils";
 
 export default function Register() {
     const [usernameStatus, setUsernameStatus] = createSignal(false);
