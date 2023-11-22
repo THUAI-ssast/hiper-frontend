@@ -4,7 +4,7 @@ import { A } from "@solidjs/router";
 const Dashboard = () => {
     const [user, setUser] = createSignal({}); // user details
     return (
-       <div class="dashboard-section">
+        <div class="dashboard-section">
             <div class="user-detail">
                 <h3>Dashboard</h3>
                 <h4>Welcome, User</h4>

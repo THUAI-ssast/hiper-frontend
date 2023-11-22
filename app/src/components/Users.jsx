@@ -83,7 +83,7 @@ export default function Users() {
                                         <Text flex={1} fontWeight="$bold" fontSize="20px" textAlign="start">
                                             {contest.metadata.title}
                                         </Text>
-                                        <Show when={contest.states.commit_ai_enabled}
+                                        <Show when={contest.states.commit_ai_enabled || contest.states.commit_ai_enabled || contest.states.public_match_enabled}
                                             fallback={
                                                 <Tag colorScheme="danger" size="lg">已结束</Tag>
                                             }

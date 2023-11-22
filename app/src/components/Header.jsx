@@ -19,11 +19,24 @@ function Header() {
     navigate('/register');
   }
 
+  function handleHomepage() {
+    navigate('/');
+  }
+
   function logOut() {
     localStorage.removeItem('jwt');
     setLoggedIn(false);
     navigate('/');
   }
+  const [bgColor, setBgColor] = createSignal("initialColor");
+
+  const handleMouseEnter = () => {
+    setBgColor("#eeeeee");
+  };
+
+  const handleMouseLeave = () => {
+    setBgColor("initialColor");
+  };
 
   createEffect(() => {
     setLoggedIn(checkLoggedIn());
@@ -31,14 +44,16 @@ function Header() {
 
   return (
     <HStack class="header" spacing="10px" borderBottom="1px solid #ccc" boxShadow="0 1px 2px rgba(0, 0, 0, 0.1)">
-      <Anchor as={Link} href="/" class="logo">
-        <HStack p="$2" spacing="10px">
-          <Image src={logo} alt="logo" width="40px" />
-          <Heading class="title" size="xl" fontWeight="$bold" fontStyle={"oblique"}>
-            Hiper
-          </Heading>
-        </HStack>
-      </Anchor>
+      <HStack p="$2" spacing="10px" onClick={handleHomepage}
+        onMouseEnter={handleMouseEnter} // Add this line
+        onMouseLeave={handleMouseLeave} // Add this line
+        style={`background-color: ${bgColor()}; transition: background-color 0.3s ease;`} // Add this line
+      >
+        <Image src={logo} alt="logo" width="40px" />
+        <Heading class="title" size="xl" fontWeight="$bold" fontStyle={"oblique"}>
+          Hiper
+        </Heading>
+      </HStack>
 
       <Spacer />
       <Show
