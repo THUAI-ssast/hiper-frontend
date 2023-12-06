@@ -4,6 +4,7 @@ import logo from '../logo.svg';
 import { createEffect, createSignal, onMount, createMemo, Show } from "solid-js";
 import "../assets/Avatar.png";
 import { checkLoggedIn } from "../utils";
+import { apiUrl } from "../utils";
 
 
 export const [loggedIn, setLoggedIn] = createSignal(false);
@@ -28,6 +29,28 @@ function Header() {
     setLoggedIn(false);
     navigate('/');
   }
+
+  function Redirect() {
+    fetch(`${apiUrl}/user`, {
+
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      authorization: `Bearer ${localStorage.getItem('jwt')}`
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          throw new Error(response.statusText);
+        }
+      })
+      .then((data) => {
+        navigate(`/users/${data.username}`);
+      })
+  }
+
   const [bgColor, setBgColor] = createSignal("initialColor");
 
   const handleMouseEnter = () => {
@@ -55,6 +78,11 @@ function Header() {
         </Heading>
       </HStack>
 
+      <HStack spacing="10px">
+        <Button as={Link} href="/games" variant="ghost" color="black" fontSize="$l">游戏</Button>
+        <Button as={Link} href="/contests" variant="ghost" color="black" fontSize="$l">比赛</Button>
+      </HStack>
+
       <Spacer />
       <Show
         when={loggedIn()}
@@ -65,10 +93,9 @@ function Header() {
           </>}
       >
         <Menu closeOnSelect={true}>
-          <Avatar as={MenuTrigger} src="https://vip.helloimg.com/images/2023/11/10/odW46g.th.png" height="40px" width="40px" mr="1em" />
+          <Avatar as={MenuTrigger} src="https://vip.helloimg.com/images/2023/11/10/odW46g.th.png" margin="5px" />
           <MenuContent>
-            <MenuItem as={Link} href="/user">个人中心</MenuItem>
-            <MenuItem as={Link} href="/settings">设置</MenuItem>
+            <MenuItem onSelect={Redirect}>个人中心</MenuItem>
             <MenuItem onSelect={logOut} color="red">退出登录</MenuItem>
           </MenuContent>
         </Menu>

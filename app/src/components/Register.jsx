@@ -37,12 +37,12 @@ export default function Register() {
 
     function sendVerifyCode() {
         // 在这里发送验证码
-        fetch(`${apiUrl}/users/request-verification-code`, {
+        fetch(`${apiUrl}/user/request-verification-code`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ email: formData().email })
+            body: JSON.stringify({ "email": formData().email })
         })
             .then(data => {
                 console.log(data);

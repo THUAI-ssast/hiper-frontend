@@ -1,3 +1,7 @@
 export default function Contest() {
-    return <div>Contest</div>;
+    return (
+        <>
+            contest如何实现
+        </>
+    )
 }

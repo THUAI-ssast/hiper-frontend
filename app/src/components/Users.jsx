@@ -12,6 +12,26 @@ export default function Users() {
     const [user, setUser] = createSignal({});
 
     onMount(() => {
+        if (localStorage.getItem('jwt')) {
+            fetch(`${apiUrl}/user`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                authorization: `Bearer ${localStorage.getItem('jwt')}`
+            })
+                .then((response) => {
+                    if (response.status === 200) {
+                        return response.json();
+                    } else {
+                        throw new Error(response.statusText);
+                    }
+                })
+                .then((data) => {
+                    setIsMe(data.username === params.username);
+                    console.log(isMe());
+                })
+        }
 
         fetch(
             `${apiUrl}/users/${params.username}`,
@@ -46,29 +66,29 @@ export default function Users() {
                     <InputLeftElement>
                         <Icon as={BiRegularGroup} />
                     </InputLeftElement>
-                    <Input value={user().name} variant="filled" disabled={!isMe} backgroundColor={isMe ? "#eeeeee" : "white"} placeholder="姓名" />
+                    <Input value={user().name} variant="filled" disabled={!isMe()} backgroundColor={isMe ? "#eeeeee" : "white"} placeholder="姓名" />
                 </InputGroup>
                 <InputGroup mt="20px">
                     <InputLeftElement>
                         <Icon as={BiRegularMailSend} />
                     </InputLeftElement>
-                    <Input value={user().email} variant="filled" disabled={!isMe} backgroundColor={isMe ? "#eeeeee" : "white"} placeholder="邮箱" />
+                    <Input value={user().email} variant="filled" disabled={!isMe()} backgroundColor={isMe ? "#eeeeee" : "white"} placeholder="邮箱" />
                 </InputGroup>
                 <HStack>
                     <InputGroup mt="20px" mr="10px">
                         <InputLeftElement>
                             <Icon as={BiSolidSchool} />
                         </InputLeftElement>
-                        <Input value={user().school} variant="filled" disabled={!isMe} backgroundColor={isMe ? "#eeeeee" : "white"} placeholder="学校" />
+                        <Input value={user().school} variant="filled" disabled={!isMe()} backgroundColor={isMe ? "#eeeeee" : "white"} placeholder="学校" />
                     </InputGroup>
                     <InputGroup mt="20px">
                         <InputLeftElement>
                             <Icon as={BiSolidFlag} />
                         </InputLeftElement>
-                        <Input value={user().department} variant="filled" disabled={!isMe} backgroundColor={isMe ? "#eeeeee" : "white"} placeholder="院系" />
+                        <Input value={user().department} variant="filled" disabled={!isMe()} backgroundColor={isMe ? "#eeeeee" : "white"} placeholder="院系" />
                     </InputGroup>
                 </HStack>
-                {isMe && <Button variant="ghost" mt="20px" color={"#666666"}>更改资料</Button>}
+                {isMe() && <Button variant="ghost" mt="20px" color={"#666666"}>更改资料</Button>}
             </VStack >
             <Box flex={1} overflow="auto" overflowY="auto">
                 <Text fontSize="30px" fontWeight="$bold" textAlign="start" margin="50px 0 0 50px">

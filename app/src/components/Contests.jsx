@@ -2,9 +2,9 @@ import { For, createSignal, onMount } from 'solid-js';
 import { Link, useNavigate } from "@solidjs/router";
 import { Box, Button, Center, Flex, HStack, Heading, SimpleGrid, Spacer, VStack } from "@hope-ui/solid";
 import { apiUrl } from "../utils";
-import style from "../Homepage.module.css";
+import style from "../Contests.module.css";
 
-const Homepage = () => {
+const Contests = () => {
     const navigate = useNavigate();
 
     const [contestList, setContestList] = createSignal([
@@ -39,29 +39,23 @@ const Homepage = () => {
 
     return (
         <Flex flex={1} direction="column" ml="5%" mr="5%">
-            <Center id="banner" padding={"20px"} height="300px">
-                <VStack>
-                    <Heading as="h1" size="6xl" color="black" textAlign="center">欢迎来到Hiper</Heading>
-                    <Heading as="h2" size="2xl" color="black" textAlign="center" mt="30px">一个专注于AI编程竞赛的平台</Heading>
-                </VStack>
-            </Center>
-            <Heading as="h2" size="2xl" color="black" ml="20px">
-                在这里你能参加
+
+            <Heading as="h2" size="3xl" color="black" ml="20px" mt="$10">
+                共有{contestList().length}个比赛
             </Heading>
-            <SimpleGrid width="100%" columns={2} id="contestlist" spacing="10px">
-                <For each={contestList()}>{(contest) => <Box class={style.contestBlock} onClick={() => navigateToContest(contest)}>
-                    <Box
-                        as="img"
-                        src={contest.metadata.cover_url}
-                        style={`width: 100%; height: 80%; object-fit: cover;`} />
-                    <Box padding="$4">
-                        <Box display="flex" alignItems="baseline">
-                            <Box mt="$1" fontWeight="$semibold" as="h4" fontSize="$2xl" lineHeight="$tight">
+            <SimpleGrid width="100%" columns={3} id="contestlist" spacing="10px">
+                <For each={contestList()}>{(contest) =>
+                    <Box class={style.contestBlock} onClick={() => navigateToContest(contest)}>
+                        <Box
+                            as="img"
+                            src={contest.metadata.cover_url}
+                            style={`width: 100%; height: 80%; object-fit: cover;`} />
+                        <HStack height="20%" margin="10px" display="flex" alignItems="baseline">
+                            <Box fontWeight="$semibold" as="h4" fontSize="$2xl" lineHeight="$tight">
                                 {contest.metadata.title}
                             </Box>
-                        </Box>
-                    </Box>
-                </ Box>
+                        </HStack>
+                    </ Box>
                 }
                 </For>
 
@@ -70,4 +64,4 @@ const Homepage = () => {
     );
 };
 
-export default Homepage;
+export default Contests;
