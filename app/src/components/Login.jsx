@@ -23,13 +23,13 @@ export default function Login() {
         let body = {}
         if (formData().account.includes('@')) {
             body = {
-                email: formData().account,
-                password: formData().password
+                'email': formData().account,
+                'password': formData().password
             }
         } else {
             body = {
-                username: formData().account,
-                password: formData().password
+                'username': formData().account,
+                'password': formData().password
             }
         }
         fetch(`${apiUrl}/user/login`,

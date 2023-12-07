@@ -1,7 +1,7 @@
 import { createEffect, createSignal, Show } from "solid-js";
 import { Input, Button, VStack, HStack, Anchor } from "@hope-ui/solid";
 import { FormControl, FormLabel, FormErrorMessage } from "@hope-ui/solid";
-import { Link } from "@solidjs/router";
+import { Link, useNavigate } from "@solidjs/router";
 import { apiUrl } from "../utils";
 
 export default function Register() {
@@ -29,10 +29,23 @@ export default function Register() {
         }
     });
 
-    function handleSubmit(event) {
-        event.preventDefault();
-        // 在这里处理表单提交逻辑，发送验证码等
-
+    function handleSubmit() {
+        fetch(`${apiUrl}/users`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "username": formData().username,
+                "email": formData().email,
+                "password": formData().password,
+                "verification_code": formData().verifyCode
+            })
+        })
+            .then(data => {
+                console.log(data);
+            });
+        useNavigate('/');
     }
 
     function sendVerifyCode() {
@@ -181,7 +194,7 @@ export default function Register() {
                     已经有账号了？去登录
                 </Anchor>
 
-                <Button id="submitButton" disabled={usernameStatus() || emailStatus() || passwordStatus() || confirmPasswordStatus() || verifyCodeStatus()} type="submit" margin="10px">注册</Button>
+                <Button id="submitButton" onClick={handleSubmit} disabled={usernameStatus() || emailStatus() || passwordStatus() || confirmPasswordStatus() || verifyCodeStatus()} margin="10px">注册</Button>
             </VStack>
         </form>
     );
