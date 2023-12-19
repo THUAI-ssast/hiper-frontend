@@ -24,8 +24,8 @@ function App() {
         <Route path="/contests" component={Contests} />
         <Route path="/games" component={Games} />
         <Route path="/users/:username" component={Users} />
-        <Route path="/contest/:id" component={Contest} />
-        <Route path="/game/:id" component={Game} />
+        <Route path="/contest/:id/:page?" component={Contest} />
+        <Route path="/game/:id/:page?" component={Game} />
         <Route path="/" element={Homepage} />
         <Route path="*" element={<p>404 Not Found</p>} />
       </Routes>

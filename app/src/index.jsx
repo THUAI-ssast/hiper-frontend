@@ -15,11 +15,11 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 
 function myApp() {
   return (
-    <HopeProvider>
-      <Router>
+    <Router>
+      <HopeProvider>
         <App />
-      </Router >
-    </HopeProvider>
+      </HopeProvider>
+    </Router >
   );
 }
 

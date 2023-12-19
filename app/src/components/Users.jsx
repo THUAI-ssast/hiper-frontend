@@ -126,7 +126,7 @@ export default function Users() {
                                                 {contest.metadata.readme}
                                             </Text>
 
-                                            <Button as={Link} href={`/matches/${contest.id}`} variant="outline" colorScheme="blue" size="sm" mt="10px">
+                                            <Button as={Link} href={`/contest/${contest.id}`} variant="outline" colorScheme="blue" size="sm" mt="10px">
                                                 查看详情
                                             </Button>
                                         </Flex>
