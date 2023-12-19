@@ -32,8 +32,8 @@ function Header() {
 
   function Redirect() {
     fetch(`${apiUrl}/user`, {
-      method: 'GET',
-      headers: {
+      "method": 'GET',
+      "headers": {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('jwt')}`
       }

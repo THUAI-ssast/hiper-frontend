@@ -17,8 +17,8 @@ export default function Users() {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                authorization: `Bearer ${localStorage.getItem('jwt')}`
+                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                }
             })
                 .then((response) => {
                     if (response.status === 200) {
