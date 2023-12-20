@@ -1,6 +1,6 @@
 import { For, createSignal, onMount } from 'solid-js';
-import { Link, useNavigate } from "@solidjs/router";
-import { Box, Button, Center, Flex, HStack, Heading, SimpleGrid, Spacer, VStack } from "@hope-ui/solid";
+import { useNavigate } from "@solidjs/router";
+import { Box, Flex, HStack, Heading, SimpleGrid } from "@hope-ui/solid";
 import { apiUrl } from "../utils";
 import style from "../Games.module.css";
 

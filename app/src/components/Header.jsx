@@ -1,13 +1,9 @@
-import { A, Link, useNavigate } from "@solidjs/router";
+import { Link, useNavigate } from "@solidjs/router";
 import { HStack, Heading, Spacer, Box, Button, Image, Anchor, Avatar, Menu, MenuTrigger, MenuItem, MenuContent } from "@hope-ui/solid";
 import logo from '../logo.svg';
-import { createEffect, createSignal, onMount, createMemo, Show } from "solid-js";
-import "../assets/Avatar.png";
-import { checkLoggedIn } from "../utils";
-import { apiUrl } from "../utils";
+import { createSignal, Show } from "solid-js";
+import { myself, setMyself } from "../App";
 
-
-export const [loggedIn, setLoggedIn] = createSignal(false);
 
 function Header() {
   const navigate = useNavigate();
@@ -26,28 +22,12 @@ function Header() {
 
   function logOut() {
     localStorage.removeItem('jwt');
-    setLoggedIn(false);
+    setMyself(null);
     navigate('/');
   }
 
   function Redirect() {
-    fetch(`${apiUrl}/user`, {
-      "method": 'GET',
-      "headers": {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-      }
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          return response.json();
-        } else {
-          throw new Error(response.statusText);
-        }
-      })
-      .then((data) => {
-        navigate(`/users/${data.username}`);
-      })
+    navigate(`/users/${myself().username}`);
   }
 
   const [bgColor, setBgColor] = createSignal("initialColor");
@@ -60,16 +40,12 @@ function Header() {
     setBgColor("initialColor");
   };
 
-  createEffect(() => {
-    setLoggedIn(checkLoggedIn());
-  });
-
   return (
     <HStack class="header" spacing="10px" borderBottom="1px solid #ccc" boxShadow="0 1px 2px rgba(0, 0, 0, 0.1)">
       <HStack p="$2" spacing="10px" onClick={handleHomepage}
-        onMouseEnter={handleMouseEnter} // Add this line
-        onMouseLeave={handleMouseLeave} // Add this line
-        style={`background-color: ${bgColor()}; transition: background-color 0.3s ease;`} // Add this line
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        style={`background-color: ${bgColor()}; transition: background-color 0.3s ease;`}
       >
         <Image src={logo} alt="logo" width="40px" />
         <Heading class="title" size="xl" fontWeight="$bold" fontStyle={"oblique"}>
@@ -84,7 +60,7 @@ function Header() {
 
       <Spacer />
       <Show
-        when={loggedIn()}
+        when={myself()}
         fallback={() =>
           <>
             <Button onClick={handleLogin} mr="$1" variant="outline">登录</Button>
@@ -92,7 +68,7 @@ function Header() {
           </>}
       >
         <Menu closeOnSelect={true}>
-          <Avatar as={MenuTrigger} src="https://vip.helloimg.com/images/2023/11/10/odW46g.th.png" margin="5px" />
+          <Avatar as={MenuTrigger} src={myself().avatar_url} margin="3px" mr="10px" />
           <MenuContent>
             <MenuItem onSelect={Redirect}>个人中心</MenuItem>
             <MenuItem onSelect={logOut} color="red">退出登录</MenuItem>

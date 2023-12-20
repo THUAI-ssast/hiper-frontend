@@ -1,8 +1,11 @@
-import { Route, Router, Routes } from "@solidjs/router";
-import Header from "./components/Header";
+import { Route, Routes } from "@solidjs/router";
+import { Flex } from "@hope-ui/solid";
+import { createSignal, onMount } from "solid-js";
 
 import "./index.css"
+
 import Login from "./components/Login";
+import Header from "./components/Header";
 import Register from "./components/Register";
 import ResetPassword from "./components/ResetPassword";
 import Homepage from "./components/Homepage";
@@ -11,9 +14,39 @@ import Contest from "./components/Contest";
 import Contests from "./components/Contests";
 import Game from "./components/Game";
 import Games from "./components/Games";
-import { Flex } from "@hope-ui/solid";
+import { apiUrl } from "./utils";
+
+export const [myself, setMyself] = createSignal(null);
+
+export function getCurrentUser() {
+  if (localStorage.getItem('jwt')) {
+    fetch(`${apiUrl}/user`, {
+      'method': 'GET',
+      'headers': {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+      }
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          throw new Error(response.statusText);
+        }
+      })
+      .then((data) => {
+        setMyself(data);
+      })
+  }
+}
 
 function App() {
+  onMount(() => {
+    getCurrentUser();
+  }
+  );
+
+
   return (
     <Flex direction="column" height="100%">
       <Header />

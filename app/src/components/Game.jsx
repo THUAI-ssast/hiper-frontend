@@ -1,9 +1,10 @@
-import { useParams, useNavigate, Routes, Route, Link } from "@solidjs/router"
-import { onMount, createSignal, Switch, Match, For } from "solid-js";
+import { useParams, useNavigate } from "@solidjs/router"
+import { onMount, createSignal, Switch, Match, For, createEffect } from "solid-js";
 import { apiUrl } from "../utils";
 import { Flex, Heading, Image, Center, HStack, Button, VStack, Box, Table, Thead, Th, Tr, Td, Tbody, Spacer, Tag } from "@hope-ui/solid";
 import { SolidMarkdown } from "solid-markdown";
 import { Pagination } from "@ark-ui/solid";
+import { myself } from "../App";
 
 const [game, setGame] = createSignal();
 
@@ -194,7 +195,7 @@ function Ranklist() {
                                             page.type === 'page' ? (
                                                 <Pagination.Item {...page}>{page.value}</Pagination.Item>
                                             ) : (
-                                                <> </>
+                                                <>...</>
                                             )
                                         }
                                     </For>
@@ -237,7 +238,6 @@ function Matches() {
             })
             .then((data) => {
                 setMatchList(data);
-                console.log(data);
             });
     }
 
@@ -247,7 +247,6 @@ function Matches() {
 
     const handlePageChange = (details) => {
         setCurrentPage(details.page);
-        console.log(details.page);
         updateMatchList();
     }
 
@@ -360,31 +359,12 @@ function Submissions() {
 
     const [submissionList, setSubmissionList] = createSignal();
     const [currentPage, setCurrentPage] = createSignal(1);
-    const [myself, setMyself] = createSignal();
 
-    onMount(() => {
-        if (localStorage.getItem('jwt')) {
-            fetch(`${apiUrl}/user`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-                }
-            })
-                .then((response) => {
-                    if (response.status === 200) {
-                        return response.json();
-                    } else {
-                        throw new Error(response.statusText);
-                    }
-                })
-                .then((data) => {
-                    setMyself(data);
-                })
+    createEffect(() => {
+        if (myself() != null) {
+            updateSubmissionList();
         }
-
-        updateSubmissionList();
-    });
+    })
 
     const updateSubmissionList = () => {
         fetch(
@@ -410,7 +390,6 @@ function Submissions() {
     }
 
     const downloadAI = (ai) => {
-        console.log(ai);
         fetch(
             `${apiUrl}/games/${params.id}/ais/${ai.id}/file`,
             {

@@ -1,21 +1,18 @@
-import { createEffect, createSignal, Show, onMount } from "solid-js";
-import { Input, Button, Center, VStack, Spacer, HStack, Anchor } from "@hope-ui/solid";
-import { FormControl, FormLabel, FormHelperText, FormErrorMessage } from "@hope-ui/solid";
+import { createSignal, onMount } from "solid-js";
+import { Input, Button, VStack, Spacer, HStack, Anchor } from "@hope-ui/solid";
+import { FormControl, FormLabel } from "@hope-ui/solid";
 import { Link, useNavigate } from "@solidjs/router";
-import { setLoggedIn, loggedIn } from "./Header";
 
 import { apiUrl } from "../utils";
+import { getCurrentUser } from "../App";
 
 export default function Login() {
-    onMount(() => {
-        setLoggedIn(localStorage.getItem("jwt") !== null);
-    });
+    const navigate = useNavigate();
 
     const [formData, setFormData] = createSignal({
         account: '',
         password: ''
     });
-
 
     function handleSubmit(event) {
         event.preventDefault();
@@ -50,16 +47,15 @@ export default function Login() {
             })
             .then((data) => {
                 const accessToken = data.access_token;
-                setLoggedIn(true);
                 localStorage.setItem('jwt', accessToken);
-                navigate('/')
+                getCurrentUser();
+                navigate('/');
             })
             .catch((error) => {
                 console.error('Error:', error);
             });
     }
 
-    const navigate = useNavigate();
 
     return (
         <form onSubmit={handleSubmit} >
