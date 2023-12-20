@@ -51,6 +51,7 @@ export default function Game() {
                 }
             })
             .then((data) => {
+                console.log(data)
                 if (data.my_privilege == "admin") {
                     setIsAdmin(true);
                 }
@@ -77,6 +78,7 @@ export default function Game() {
                             <Button margin="5px" variant={params.page == "ranklist" ? "outline" : "ghost"} onClick={navigateToRanklist}>排行榜</Button>
                             <Button margin="5px" variant={params.page == "matches" ? "outline" : "ghost"} onClick={navigateToMatches}>对局列表</Button>
                             <Button margin="5px" variant={params.page == "submissions" ? "outline" : "ghost"} onClick={navigateToSubmissions}>提交列表</Button>
+                            {isAdmin() ? (<Button margin="5px" variant={"subtle"} onClick={() => navigate('/admin/game/' + params.id)}>管理</Button>) : (<></>)}
                         </HStack>
                         <Switch fallback={<Heading size={"3xl"}> 404 Not Found </Heading>}>
                             <Match when={params.page == null}>
