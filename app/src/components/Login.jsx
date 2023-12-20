@@ -4,7 +4,7 @@ import { FormControl, FormLabel, FormHelperText, FormErrorMessage } from "@hope-
 import { Link, useNavigate } from "@solidjs/router";
 import { setLoggedIn, loggedIn } from "./Header";
 
-import { apiUrl, checkLoggedIn } from "../utils";
+import { apiUrl } from "../utils";
 
 export default function Login() {
     onMount(() => {

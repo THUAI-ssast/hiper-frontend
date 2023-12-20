@@ -263,12 +263,13 @@ function Matches() {
                 <Center>
                     <VStack>
                         <Center>
-                            <Table highlightOnHover width={"1200px"}>
+                            <Table highlightOnHover width={"1250px"}>
                                 <Thead>
                                     <Th width={"100px"}>对局编号</Th>
                                     <Th width={"300px"}>对局时间</Th>
                                     <Th width={"100px"}>备注</Th>
                                     <Th width={"300px"}>选手1</Th>
+                                    <Th width={"50px"} />
                                     <Th width={"300px"}>选手2</Th>
                                     <Th width={"100px"}>对局状态</Th>
                                 </Thead>
@@ -287,16 +288,19 @@ function Matches() {
                                                 </Td>
                                                 <Td width={"400px"}>
                                                     <HStack>
+                                                        <Center height={"48px"} width={"48px"} backgroundColor={match.players[0].score > match.players[1].score ? "green" : match.players[0].score < match.players[1].score ? "red" : "gray"}>
+                                                            <Heading color="white" >{match.players[0].score}</Heading>
+                                                        </Center>
+                                                        <Spacer />
                                                         <Box as="img" onClick={() => navigateToUser(match.players[0].user.username)} src={match.players[0].user.avatar_url} style={`cursor: pointer;width: 30px; height: 30px; border-radius: 50%; object-fit: cover;`} />
                                                         <Box ml="10px">
                                                             <Heading>{match.players[0].user.nickname}</Heading>
                                                             <Heading fontSize="12px" color="gray">AI编号: {match.players[0].ai.id}</Heading>
                                                         </Box>
-                                                        <Spacer />
-                                                        <Center height={"48px"} width={"48px"} backgroundColor={match.players[0].score > match.players[1].score ? "green" : match.players[0].score < match.players[1].score ? "red" : "gray"}>
-                                                            <Heading color="white" >{match.players[0].score}</Heading>
-                                                        </Center>
                                                     </HStack>
+                                                </Td>
+                                                <Td>
+                                                    <Heading size={"3xl"}>VS.</Heading>
                                                 </Td>
                                                 <Td width={"400px"}>
                                                     <HStack>
