@@ -1,7 +1,7 @@
 /* @refresh reload */
 import { render } from 'solid-js/web';
 import { Router } from "@solidjs/router";
-import { HopeProvider } from '@hope-ui/solid'
+import { HopeProvider, NotificationsProvider } from '@hope-ui/solid'
 
 import App from './App';
 
@@ -17,7 +17,9 @@ function myApp() {
   return (
     <Router>
       <HopeProvider>
-        <App />
+        <NotificationsProvider>
+          <App />
+        </NotificationsProvider>
       </HopeProvider>
     </Router >
   );

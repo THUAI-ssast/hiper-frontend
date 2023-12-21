@@ -1,6 +1,6 @@
 import { createSignal, onMount } from "solid-js";
 import { Input, Button, VStack, Spacer, HStack, Anchor } from "@hope-ui/solid";
-import { FormControl, FormLabel } from "@hope-ui/solid";
+import { notificationService, FormControl, FormLabel } from "@hope-ui/solid";
 import { Link, useNavigate } from "@solidjs/router";
 
 import { apiUrl } from "../utils";
@@ -40,6 +40,7 @@ export default function Login() {
         )
             .then((response) => {
                 if (response.status === 200) {
+                    console.log("登陆成功!");
                     return response.json();
                 } else {
                     throw new Error(response.statusText);
@@ -49,9 +50,19 @@ export default function Login() {
                 const accessToken = data.access_token;
                 localStorage.setItem('jwt', accessToken);
                 getCurrentUser();
+                notificationService.show({
+                    status: "success", /* or success, warning, danger */
+                    title: "登陆成功！",
+                    description: "开始你的比赛之旅吧！😍",
+                });
                 navigate('/');
             })
             .catch((error) => {
+                notificationService.show({
+                    status: "danger", /* or success, warning, danger */
+                    title: "登陆失败",
+                    description: "用户名或密码错误！😭",
+                });
                 console.error('Error:', error);
             });
     }
