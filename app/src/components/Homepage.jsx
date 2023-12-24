@@ -64,7 +64,6 @@ const Homepage = () => {
                 </ Box>
                 }
                 </For>
-
             </SimpleGrid>
         </ Flex >
     );

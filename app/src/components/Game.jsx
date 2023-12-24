@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "@solidjs/router"
 import { onMount, createSignal, Switch, Match, For, createEffect } from "solid-js";
 import { apiUrl } from "../utils";
-import { Flex, Heading, Image, Center, HStack, Button, VStack, Box, Table, Thead, Th, Tr, Td, Tbody, Spacer, Tag } from "@hope-ui/solid";
+import { Flex, Heading, Image, Center, HStack, Button, VStack, Box, Table, Thead, Th, Tr, Td, Tbody, Spacer, Tag, Skeleton } from "@hope-ui/solid";
 import { SolidMarkdown } from "solid-markdown";
 import { Pagination } from "@ark-ui/solid";
 import { myself } from "../App";
@@ -65,14 +65,22 @@ export default function Game() {
                 {game() ? (
                     <Image src={game().metadata.cover_url} height="200px" style={`width: 100%; object-fit: cover;`} />
                 ) : (
-                    <div>加载中...</div>
+                    <VStack alignItems="stretch" spacing="$2">
+                        <Skeleton height="20px" />
+                        <Skeleton height="20px" />
+                        <Skeleton height="20px" />
+                    </VStack>
                 )}
                 <Center boxShadow={"0 -3px 3px rgba(0, 0, 0, 0.5)"} width={"100%"}>
                     <VStack width="100%">
 
                         {game() ? (<Heading size="3xl" margin="20px">
                             {game().metadata.title}
-                        </Heading>) : (<div>加载中...</div>)}
+                        </Heading>) : (<VStack alignItems="stretch" spacing="$2">
+                            <Skeleton height="20px" />
+                            <Skeleton height="20px" />
+                            <Skeleton height="20px" />
+                        </VStack>)}
                         <HStack>
                             <Button margin="5px" variant={params.page == null ? "outline" : "ghost"} onClick={navigateToInfo}>详细信息</Button>
                             <Button margin="5px" variant={params.page == "ranklist" ? "outline" : "ghost"} onClick={navigateToRanklist}>排行榜</Button>
@@ -106,7 +114,11 @@ export default function Game() {
 function Infomation() {
     return (
         <Box fontSize="$xl" width={"1000px"}>
-            {game() ? (<SolidMarkdown children={game().metadata.readme} />) : (<div>加载中...</div>)}
+            {game() ? (<SolidMarkdown children={game().metadata.readme} />) : (<VStack alignItems="stretch" spacing="$2">
+                <Skeleton height="20px" />
+                <Skeleton height="20px" />
+                <Skeleton height="20px" />
+            </VStack>)}
         </Box >
     );
 }
@@ -207,7 +219,11 @@ function Ranklist() {
                         </Pagination.Root>
                     </VStack >
                 </Center>
-            ) : (<div>加载中...</div >)
+            ) : (<VStack alignItems="stretch" spacing="$2">
+                <Skeleton height="20px" />
+                <Skeleton height="20px" />
+                <Skeleton height="20px" />
+            </VStack>)
             }
         </>
     );
@@ -350,7 +366,11 @@ function Matches() {
                         </Pagination.Root>
                     </VStack >
                 </Center >
-            ) : (<div>加载中...</div >)
+            ) : (<VStack alignItems="stretch" spacing="$2">
+                <Skeleton height="20px" />
+                <Skeleton height="20px" />
+                <Skeleton height="20px" />
+            </VStack>)
             }
         </>
     )
@@ -484,7 +504,11 @@ function Submissions() {
                         </Pagination.Root>
                     </VStack >
                 </Center>
-            ) : (<div>加载中...</div >)
+            ) : (<VStack alignItems="stretch" spacing="$2">
+                <Skeleton height="20px" />
+                <Skeleton height="20px" />
+                <Skeleton height="20px" />
+            </VStack>)
             }
         </>
     );

@@ -1,7 +1,180 @@
+import { Center, FormControl, VStack, FormLabel, Switch, Input, Divider, HStack, Box, Button, Tabs, TabList, Tab, TabPanel, Heading, Flex, Skeleton, Image, Grid, GridItem } from "@hope-ui/solid";
+import { Show, createEffect, createSignal, onMount } from "solid-js";
+import { apiUrl } from "../utils";
+import { useParams } from "@solidjs/router";
+import { object, string } from "yup";
+import { MonacoEditor } from "solid-monaco";
+import { SolidMarkdown } from "solid-markdown";
+import { MDXProvider } from "solid-marked";
+import { marked } from "marked";
+
+
 export default function Admin() {
+    const params = useParams();
+
+    const [metadata, setMetadata] = createSignal();
+    const [sdks, setSdks] = createSignal();
+    const [states, setStates] = createSignal();
+
+    onMount(() => {
+        fetch(
+            `${apiUrl}/games/${params.id}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        )
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then((data) => {
+                console.log(data);
+                setMetadata(data.metadata);
+                setStates(data.base_contest.states);
+                console.log(states());
+            });
+        fetch(
+            `${apiUrl}/games/${params.id}/sdks`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        )
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then((data) => {
+                console.log(data);
+                setSdks(data);
+            });
+    });
+
+    function handleEditMetadata() {
+        fetch(
+            `${apiUrl}/games/${params.id}/metadata`,
+            {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                },
+                body: JSON.stringify(metadata())
+            }
+        )
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then((data) => {
+                console.log("修改成功！");
+                console.log(metadata());
+            });
+        fetch(
+            `${apiUrl}/games/${params.id}/states`,
+            {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                },
+                body: JSON.stringify(states())
+            }
+        )
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then((data) => {
+                console.log("修改成功！");
+                console.log(states());
+            });
+    }
+
+    function handleEditSdks() {
+
+    }
+
+
     return (
-        <div>
-            <p>Admin</p>
-        </div>
+        <Tabs variant="cards" flex={1}>
+            <TabList>
+                <Tab>基本信息</Tab>
+                <Tab>SDK</Tab>
+            </TabList>
+            <TabPanel height={"95%"}>
+                <Show when={metadata() && states()}>
+                    <Flex direction="row" height={"99%"} >
+                        <Flex direction="column" ml="5%" mr="15px" width={"40%"} height={"100%"}>
+                            <FormControl mb="10px">
+                                <FormLabel>游戏名称</FormLabel>
+                                <Input value={metadata().title} onInput={(e) => setMetadata({ ...metadata(), title: e.target.value })} />
+                            </ FormControl>
+                            <FormControl mb="10px">
+                                <FormLabel>封面链接</FormLabel>
+                                <Input value={metadata().cover_url} onInput={(e) => setMetadata({ ...metadata(), cover_url: e.target.value })} />
+                            </ FormControl>
+                            <FormLabel>属性设置</FormLabel>
+                            <Grid templateColumns="repeat(3, 2fr)" gap={6}>
+                                <GridItem>
+                                    <Switch checked={states().contest_script_environment_enabled} onChange={(e) => setStates({ ...states(), contest_script_environment_enabled: e.target.checked })}>启用赛事脚本</Switch>
+                                </GridItem>
+                                <GridItem>
+                                    <Switch checked={states().commit_ai_enabled} onChange={(e) => setStates({ ...states(), commit_ai_enabled: e.target.checked })}>允许提交AI</Switch>
+                                </GridItem>
+                                <GridItem>
+                                    <Switch checked={states().assign_ai_enabled} onChange={(e) => setStates({ ...states(), assign_ai_enabled: e.target.checked })}>允许测评AI</Switch>
+                                </GridItem>
+                                <GridItem>
+                                    <Switch checked={states().private_match_enabled} onChange={(e) => setStates({ ...states(), private_match_enabled: e.target.checked })}>允许私人对局</Switch>
+                                </GridItem>
+                                <GridItem>
+                                    <Switch checked={states().public_match_enabled} onChange={(e) => setStates({ ...states(), public_match_enabled: e.target.checked })}>允许公开对局</Switch>
+                                </GridItem>
+                                <GridItem>
+                                    <Switch checked={states().test_match_enabled} onChange={(e) => setStates({ ...states(), test_match_enabled: e.target.checked })}>允许测试对局</Switch>
+                                </GridItem>
+                            </Grid>
+                            <FormControl mb="10px" flex={1}>
+                                <FormLabel>详情介绍</FormLabel>
+                                <Box borderWidth="1px" padding="3px" height="95%" borderColor="rgba(0, 0, 0, 0.2)" borderRadius="5px">
+                                    <MonacoEditor language="markdown" value={metadata().readme} onChange={(string, event) => setMetadata({ ...metadata(), readme: string })} />
+                                </Box>
+                            </ FormControl>
+                            <Button onClick={handleEditMetadata}>修改</Button>
+                        </Flex>
+                        <Divider orientation="vertical" />
+                        <Box flex={1} margin="20px" borderWidth="1px" borderColor="rgba(0, 0, 0, 0.2)" borderRadius="5px">
+                            <Image src={metadata().cover_url} height="200px" style={`width: 100%; object-fit: cover;`}
+                                onError={(e) => { e.target.src = "http://dummyimage.com/250x250" }}
+                            />
+                            <div innerHTML={marked(metadata().readme)} style="maxWidth: 100%;overflow: auto;box-sizing: border-box;padding: 0 20px;padding: 40px;"></div>
+                        </Box >
+                    </Flex>
+                </Show>
+            </TabPanel>
+            <TabPanel>
+                <Heading>
+                    awjdliawjdiwad
+                </Heading>
+            </TabPanel>
+        </Tabs>
     )
 }
