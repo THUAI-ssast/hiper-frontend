@@ -16,7 +16,7 @@ const Homepage = () => {
 
     onMount(() => {
         fetch(
-            `${apiUrl}/contests`,
+            `${apiUrl}/games`,
             {
                 method: 'GET',
                 headers: {
