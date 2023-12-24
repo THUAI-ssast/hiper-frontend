@@ -1,14 +1,14 @@
-import { useParams, useNavigate, Routes, Route, Link } from "@solidjs/router"
+import { useParams, useNavigate } from "@solidjs/router"
 import { onMount, createSignal, Switch, Match, For, createEffect } from "solid-js";
 import { apiUrl } from "../utils";
-import { Skeleton, Flex, Heading, Image, Center, HStack, Button, VStack, Box, Table, Thead, Th, Tr, Td, Tbody, Spacer, Tag } from "@hope-ui/solid";
+import { Flex, Heading, Image, Center, HStack, Button, VStack, Box, Table, Thead, Th, Tr, Td, Tbody, Spacer, Tag, Skeleton } from "@hope-ui/solid";
 import { SolidMarkdown } from "solid-markdown";
 import { Pagination } from "@ark-ui/solid";
 import { myself } from "../App";
 
-const [contest, setContest] = createSignal();
+const [game, setGame] = createSignal();
 
-export default function Contest() {
+export default function Game() {
     const params = useParams(); // params.id
 
     const [isAdmin, setIsAdmin] = createSignal(false);
@@ -32,7 +32,7 @@ export default function Contest() {
     }
 
     onMount(() => {
-        // fetch contest data
+        // fetch game data
         fetch(
             `${apiUrl}/games/${params.id}`,
             {
@@ -51,18 +51,19 @@ export default function Contest() {
                 }
             })
             .then((data) => {
+                console.log(data)
                 if (data.my_privilege == "admin") {
                     setIsAdmin(true);
                 }
-                setContest(data);
+                setGame(data);
             });
     });
 
     return (
         <>
             <Flex direction="column" width={"100%"}>
-                {contest() ? (
-                    <Image src={contest().metadata.cover_url} height="200px" style={`width: 100%; object-fit: cover;`} />
+                {game() ? (
+                    <Image src={game().metadata.cover_url} height="200px" style={`width: 100%; object-fit: cover;`} />
                 ) : (
                     <VStack alignItems="stretch" spacing="$2">
                         <Skeleton height="20px" />
@@ -73,8 +74,8 @@ export default function Contest() {
                 <Center boxShadow={"0 -3px 3px rgba(0, 0, 0, 0.5)"} width={"100%"}>
                     <VStack width="100%">
 
-                        {contest() ? (<Heading size="3xl" margin="20px">
-                            {contest().metadata.title}
+                        {game() ? (<Heading size="3xl" margin="20px">
+                            {game().metadata.title}
                         </Heading>) : (<VStack alignItems="stretch" spacing="$2">
                             <Skeleton height="20px" />
                             <Skeleton height="20px" />
@@ -113,7 +114,7 @@ export default function Contest() {
 function Infomation() {
     return (
         <Box fontSize="$xl" width={"1000px"}>
-            {contest() ? (<SolidMarkdown children={contest().metadata.readme} />) : (<VStack alignItems="stretch" spacing="$2">
+            {game() ? (<SolidMarkdown children={game().metadata.readme} />) : (<VStack alignItems="stretch" spacing="$2">
                 <Skeleton height="20px" />
                 <Skeleton height="20px" />
                 <Skeleton height="20px" />
@@ -208,7 +209,7 @@ function Ranklist() {
                                             page.type === 'page' ? (
                                                 <Pagination.Item {...page}>{page.value}</Pagination.Item>
                                             ) : (
-                                                <> </>
+                                                <>...</>
                                             )
                                         }
                                     </For>
@@ -284,7 +285,7 @@ function Matches() {
                                     <Th width={"100px"}>对局编号</Th>
                                     <Th width={"300px"}>对局时间</Th>
                                     <Th width={"100px"}>备注</Th>
-                                    <Th width={"300px"}>选手1</Th>
+                                    <Th width={"300px"} textAlign={"right"}>选手1</Th>
                                     <Th width={"50px"} />
                                     <Th width={"300px"}>选手2</Th>
                                     <Th width={"100px"}>对局状态</Th>
@@ -381,7 +382,6 @@ function Submissions() {
     const [submissionList, setSubmissionList] = createSignal();
     const [currentPage, setCurrentPage] = createSignal(1);
 
-
     createEffect(() => {
         if (myself() != null) {
             updateSubmissionList();
@@ -390,7 +390,7 @@ function Submissions() {
 
     const updateSubmissionList = () => {
         fetch(
-            `${apiUrl}/games/${params.id}/ais?limit=${5}&offset=${5 * (currentPage() - 1)}&username=${myself().username}`,
+            `${apiUrl}/games/${params.id}/ais?limit=${5}&offset=${5 * (currentPage() - 1)}&username=${myself.username}`,
             {
                 "method": "GET",
                 "headers": {
