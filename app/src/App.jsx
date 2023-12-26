@@ -14,7 +14,8 @@ import Contest from "./components/Contest";
 import Contests from "./components/Contests";
 import Game from "./components/Game";
 import Games from "./components/Games";
-import Admin from "./components/Admin";
+import GameAdmin from "./components/GameAdmin";
+import ContextAdmin from "./components/ContestAdmin";
 import { apiUrl } from "./utils";
 import ResetEmail from "./components/ResetEmail";
 
@@ -62,7 +63,8 @@ function App() {
         <Route path="/users/:username" component={Users} />
         <Route path="/contest/:id/:page?" component={Contest} />
         <Route path="/game/:id/:page?" component={Game} />
-        <Route path="/admin/:type/:id" component={Admin} />
+        <Route path="/admin/game/:id" component={GameAdmin} />
+        <Route path="/admin/contest/:id" component={ContextAdmin} />
         <Route path="/" element={Homepage} />
         <Route path="*" element={<p>404 Not Found</p>} />
       </Routes>

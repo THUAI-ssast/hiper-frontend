@@ -1,15 +1,12 @@
-import { Center, FormControl, VStack, FormLabel, Switch, Input, Divider, HStack, Box, Button, Tabs, TabList, Tab, TabPanel, Heading, Flex, Skeleton, Image, Grid, GridItem } from "@hope-ui/solid";
+import { Center, FormControl, VStack, FormLabel, Switch, Input, Divider, HStack, Box, Button, Tabs, TabList, Tab, TabPanel, Heading, Flex, Skeleton, Image, Grid, GridItem, notificationService } from "@hope-ui/solid";
 import { For, Show, createEffect, createSignal, onMount } from "solid-js";
 import { apiUrl } from "../utils";
 import { useParams } from "@solidjs/router";
-import { object, string } from "yup";
 import { MonacoEditor } from "solid-monaco";
-import { SolidMarkdown } from "solid-markdown";
-import { MDXProvider } from "solid-marked";
 import { marked } from "marked";
 
 
-export default function Admin() {
+export default function GameAdmin() {
     const params = useParams();
 
     const [metadata, setMetadata] = createSignal();
@@ -20,6 +17,10 @@ export default function Admin() {
         "readme": "",
         "build_ai_dockerfile": "",
         "run_ai_dockerfile": ""
+    });
+    const [gameLogic, setGameLogic] = createSignal({
+        "build_game_logic_dockerfile": "",
+        "run_game_logic_dockerfile": ""
     });
     const [states, setStates] = createSignal();
 
@@ -45,7 +46,7 @@ export default function Admin() {
             })
             .then((data) => {
                 setMetadata(data.metadata);
-                setStates(data.states);
+                setStates(data.base_contest.states);
             });
 
         fetch(
@@ -128,6 +129,9 @@ export default function Admin() {
             .then((data) => {
                 console.log("修改成功！");
             });
+    }
+
+    function handleEditStates() {
         fetch(
             `${apiUrl}/games/${params.id}/states`,
             {
@@ -151,14 +155,59 @@ export default function Admin() {
             });
     }
 
+    function changeGameLogic() {
+        let body = new FormData();
+        body.append("build_game_logic_dockerfile", gameLogic().build_game_logic_dockerfile);
+        body.append("run_game_logic_dockerfile", gameLogic().run_game_logic_dockerfile);
+        if (gameLogic().game_logic_file) {
+            body.append("game_logic_file", gameLogic().game_logic_file);
+        }
+        else {
+            notificationService.show({
+                title: "游戏逻辑文件为空！",
+                description: "请上传游戏逻辑文件！",
+                type: "fanger",
+                duration: 3000,
+            })
+            return;
+        }
+        console.log(body);
+
+        fetch(
+            `${apiUrl}/games/${params.id}/game_logic`,
+            {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                },
+                body: body
+            }
+        )
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then((data) => {
+                notificationService.show({
+                    title: "修改成功！",
+                    description: "游戏逻辑修改成功！",
+                    type: "success",
+                    duration: 3000,
+                })
+            });
+    }
+
     function handleEditSdks(index) {
-        let body = {}
-        body.name = editingSdks()[index].name;
-        body.readme = editingSdks()[index].readme;
-        body.build_ai_dockerfile = editingSdks()[index].build_ai_dockerfile;
-        body.run_ai_dockerfile = editingSdks()[index].run_ai_dockerfile;
+        let body = new FormData();
+        body.append("build_ai_dockerfile", editingSdks()[index].build_ai_dockerfile);
+        body.append("run_ai_dockerfile", editingSdks()[index].run_ai_dockerfile);
+        body.append("readme", editingSdks()[index].readme);
+        body.append("name", editingSdks()[index].name);
         if (editingSdks()[index].sdk) {
-            body.sdk = editingSdks()[index].sdk;
+            body.append("sdk", editingSdks()[index].sdk);
         }
         console.log(body);
 
@@ -227,6 +276,7 @@ export default function Admin() {
             <TabList>
                 <Tab>基本信息</Tab>
                 <Tab>SDK</Tab>
+                <Tab>游戏逻辑</Tab>
             </TabList>
             <TabPanel height={"95%"}>
                 <Show when={metadata() && states()}>
@@ -240,6 +290,14 @@ export default function Admin() {
                                 <FormLabel>封面链接</FormLabel>
                                 <Input value={metadata().cover_url} onInput={(e) => setMetadata({ ...metadata(), cover_url: e.target.value })} />
                             </ FormControl>
+                            <FormControl mb="10px" height={"400px"}>
+                                <FormLabel>详情介绍</FormLabel>
+                                <Box borderWidth="1px" padding="3px" height="95%" borderColor="rgba(0, 0, 0, 0.2)" borderRadius="5px">
+                                    <MonacoEditor language="markdown" value={metadata().readme} onChange={(string, event) => setMetadata({ ...metadata(), readme: string })} />
+                                </Box>
+                            </ FormControl>
+                            <Button onClick={handleEditMetadata}>修改</Button>
+                            <Divider orientation="horizontal" />
                             <FormLabel>属性设置</FormLabel>
                             <Grid templateColumns="repeat(3, 2fr)" gap={6}>
                                 <GridItem>
@@ -261,13 +319,7 @@ export default function Admin() {
                                     <Switch checked={states().test_match_enabled} onChange={(e) => setStates({ ...states(), test_match_enabled: e.target.checked })}>允许测试对局</Switch>
                                 </GridItem>
                             </Grid>
-                            <FormControl mb="10px" flex={1}>
-                                <FormLabel>详情介绍</FormLabel>
-                                <Box borderWidth="1px" padding="3px" height="95%" borderColor="rgba(0, 0, 0, 0.2)" borderRadius="5px">
-                                    <MonacoEditor language="markdown" value={metadata().readme} onChange={(string, event) => setMetadata({ ...metadata(), readme: string })} />
-                                </Box>
-                            </ FormControl>
-                            <Button onClick={handleEditMetadata}>修改</Button>
+                            <Button onClick={handleEditStates}>修改</Button>
                         </Flex>
                         <Divider orientation="vertical" />
                         <Box flex={1} margin="20px" borderWidth="1px" borderColor="rgba(0, 0, 0, 0.2)" borderRadius="5px">
@@ -355,6 +407,27 @@ export default function Admin() {
                         </Flex>
                     </Flex>
                 </Show>
+            </TabPanel>
+            <TabPanel>
+                <VStack gap={"20px"}>
+                    <FormControl mb="10px">
+                        <FormLabel>游戏逻辑文件</FormLabel>
+                        <Input type="file" onInput={(event) => setGameLogic({ ...gameLogic(), game_logic_file: event.target.files[0] })} />
+                    </FormControl>
+                    <FormControl mb="20px" height={"200px"}>
+                        <FormLabel>构建Dockerfile</FormLabel>
+                        <Box borderWidth="1px" padding="3px" height="95%" borderColor="rgba(0, 0, 0, 0.2)" borderRadius="5px">
+                            <MonacoEditor language="markdown" onChange={(string, event) => { setGameLogic({ ...gameLogic(), build_game_logic_dockerfile: string }) }} />
+                        </Box>
+                    </ FormControl>
+                    <FormControl mb="20px" height={"200px"}>
+                        <FormLabel>运行Dockerfile</FormLabel>
+                        <Box borderWidth="1px" padding="3px" height="95%" borderColor="rgba(0, 0, 0, 0.2)" borderRadius="5px">
+                            <MonacoEditor language="markdown" onChange={(string, event) => { setGameLogic({ ...gameLogic(), run_game_logic_dockerfile: string }) }} />
+                        </Box>
+                    </ FormControl>
+                    <Button onClick={changeGameLogic}>修改游戏逻辑</Button>
+                </VStack>
             </TabPanel>
         </Tabs>
     )

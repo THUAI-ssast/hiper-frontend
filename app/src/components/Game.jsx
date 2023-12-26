@@ -1,17 +1,20 @@
 import { useParams, useNavigate } from "@solidjs/router"
-import { onMount, createSignal, Switch, Match, For, createEffect } from "solid-js";
+import { onMount, createSignal, Switch, Match, For, createEffect, Show } from "solid-js";
 import { apiUrl } from "../utils";
-import { Flex, Heading, Image, Center, HStack, Button, VStack, Box, Table, Thead, Th, Tr, Td, Tbody, Spacer, Tag, Skeleton, notificationService } from "@hope-ui/solid";
+import { Flex, Heading, Image, Center, HStack, Button, VStack, Box, Table, Thead, Th, Tr, Td, Tbody, Spacer, Tag, Skeleton, notificationService, Select, SelectTrigger, SelectPlaceholder, SelectValue, SelectIcon, SelectContent, SelectListbox, SelectOption, SelectOptionText, SelectOptionIndicator, Input } from "@hope-ui/solid";
 import { SolidMarkdown } from "solid-markdown";
 import { Pagination } from "@ark-ui/solid";
 import { myself } from "../App";
 
 const [game, setGame] = createSignal();
+const [sdks, setSdks] = createSignal();
+
 
 export default function Game() {
     const params = useParams(); // params.id
 
     const [isAdmin, setIsAdmin] = createSignal(false);
+    const [isContestant, setIsContestant] = createSignal(false);
 
     const navigate = useNavigate();
 
@@ -29,6 +32,10 @@ export default function Game() {
 
     const navigateToSubmissions = () => {
         navigate('/game/' + params.id + '/submissions');
+    }
+
+    const navigateToUploadAI = () => {
+        navigate('/game/' + params.id + '/upload_ai');
     }
 
     function createContest() {
@@ -66,6 +73,7 @@ export default function Game() {
             });
     }
 
+
     onMount(() => {
         // fetch game data
         fetch(
@@ -90,9 +98,33 @@ export default function Game() {
                 if (data.my_privilege == "admin") {
                     setIsAdmin(true);
                 }
+                else if (data.my_privilege == "registered") {
+                    setIsContestant(true);
+                }
                 setGame(data);
             });
         console.log(myself());
+        // fetch sdk data
+        fetch(
+            `${apiUrl}/games/${params.id}/sdks`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                }
+            }
+        )
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then((data) => {
+                setSdks(data)
+            });
     });
 
     return (
@@ -117,14 +149,22 @@ export default function Game() {
                             <Skeleton height="20px" />
                             <Skeleton height="20px" />
                         </VStack>)}
-                        <HStack>
+                        <HStack width="1000px">
                             <Button margin="5px" variant={params.page == null ? "outline" : "ghost"} onClick={navigateToInfo}>详细信息</Button>
                             <Button margin="5px" variant={params.page == "ranklist" ? "outline" : "ghost"} onClick={navigateToRanklist}>排行榜</Button>
                             <Button margin="5px" variant={params.page == "matches" ? "outline" : "ghost"} onClick={navigateToMatches}>对局列表</Button>
                             <Button margin="5px" variant={params.page == "submissions" ? "outline" : "ghost"} onClick={navigateToSubmissions}>提交列表</Button>
-                            {isAdmin() ? (<Button margin="5px" variant={"dashed"} onClick={() => navigate('/admin/game/' + params.id)}>管理</Button>) : (<></>)}
-                            <Show when={myself().permissions.can_create_game_or_contest}>
-                                <Button margin="5px" variant={"subtle"} onClick={createContest}>新建游戏</Button>
+                            <Spacer />
+                            <Show when={isContestant() || isAdmin()}>
+                                <Button margin="5px" variant={params.page == "upload_ai" ? "outline" : "ghost"} onClick={navigateToUploadAI}>上传AI</Button>
+                            </Show>
+                            <Show when={isAdmin()}>
+                                <Button margin="5px" variant={"dashed"} onClick={() => navigate('/admin/game/' + params.id)}>管理</Button>
+                            </Show>
+                            <Show when={myself()}>
+                                <Show when={myself().permissions.can_create_game_or_contest}>
+                                    <Button margin="5px" variant={"subtle"} onClick={createContest}>新建比赛</Button>
+                                </Show>
                             </Show>
                         </HStack>
                         <Switch fallback={<Heading size={"3xl"}> 404 Not Found </Heading>}>
@@ -139,6 +179,9 @@ export default function Game() {
                             </Match>
                             <Match when={params.page == "submissions"}>
                                 <Submissions />
+                            </Match>
+                            <Match when={params.page == "upload_ai"}>
+                                <UploadAI />
                             </Match>
                         </Switch>
                     </VStack>
@@ -483,6 +526,46 @@ function Submissions() {
         updateSubmissionList();
     }
 
+    const assignAI = (ai) => {
+        fetch(
+            `${apiUrl}/games/${params.id}/contestant/assigned_ai`,
+            {
+                "method": "PUT",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
+                },
+                'body': JSON.stringify({
+                    "ai_id": ai.id,
+                }),
+            }
+        )
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.blob();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then((data) => {
+                notificationService.show({
+                    title: "操作成功",
+                    description: "已将AI设为主战！🤩",
+                    status: "success",
+                    duration: 3000,
+                });
+            })
+            .catch((error) => {
+                notificationService.show({
+                    title: "操作失败",
+                    description: "请重试！😭",
+                    status: "danger",
+                    duration: 3000,
+                });
+            });
+    }
+
+
     return (
         <>
             {submissionList() ? (
@@ -511,6 +594,7 @@ function Submissions() {
                                                 </Td>
                                                 <Td>
                                                     <Button onClick={() => downloadAI(submission)}>下载</Button>
+                                                    <Button ml={"10px"} disabled={submission.status.state != "finished"} onClick={() => assignAI(submission)}>设为主战</Button>
                                                 </Td>
                                             </Tr>
                                         }
@@ -550,5 +634,86 @@ function Submissions() {
             </VStack>)
             }
         </>
+    );
+}
+
+function UploadAI() {
+    const params = useParams(); // params.id
+
+    function handleNewAI() {
+        let body = new FormData();
+        body.append("note", note());
+        for (let i = 0; i < sdks().length; i++) {
+            if (sdks()[i].name == selectedSdk()) {
+                body.append("sdk_id", String(sdks()[i].id));
+            }
+        }
+        body.append("ai", AI());
+        fetch(`${apiUrl}/games/${params.id}/ais`,
+            {
+                "method": "POST",
+                "headers": {
+                    "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
+                },
+                "body": body,
+            }
+        )
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            }
+            )
+            .then((data) => {
+                notificationService.show({
+                    title: "操作成功",
+                    description: "AI上传成功！🤩",
+                    status: "success",
+                    duration: 3000,
+                });
+            })
+            .catch((error) => {
+                notificationService.show({
+                    title: "操作失败",
+                    description: "请重试！😭",
+                    status: "danger",
+                    duration: 3000,
+                });
+            });
+    }
+
+    const [note, setNote] = createSignal("");
+    const [selectedSdk, setSelectedSdk] = createSignal("请选择SDK");
+    const [AI, setAI] = createSignal();
+
+    return (
+        <Show when={sdks()}>
+            <VStack gap={"20px"}>
+                <Select value={selectedSdk()} onChange={setSelectedSdk}>
+                    <SelectTrigger>
+                        <SelectPlaceholder>选择SDK</SelectPlaceholder>
+                        <SelectValue />
+                        <SelectIcon />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectListbox>
+                            <For each={sdks()}>
+                                {sdk => (
+                                    <SelectOption value={sdk.name}>
+                                        <SelectOptionText>{sdk.name}</SelectOptionText>
+                                        <SelectOptionIndicator />
+                                    </SelectOption>
+                                )}
+                            </For>
+                        </SelectListbox>
+                    </SelectContent>
+                </Select>
+                <Input placeholder="AI文件" type="file" onInput={(e) => setAI(e.target.files[0])} />
+                <Input placeholder="备注" onInput={(e) => setNote(e.target.value)} />
+                <Button onClick={handleNewAI} disabled={!AI() || selectedSdk() == "请选择SDK"}>上传</Button>
+            </VStack>
+        </Show>
     );
 }
