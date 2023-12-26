@@ -16,14 +16,15 @@ import Game from "./components/Game";
 import Games from "./components/Games";
 import Admin from "./components/Admin";
 import { apiUrl } from "./utils";
+import ResetEmail from "./components/ResetEmail";
 
 export const [myself, setMyself] = createSignal(null);
 
 export function getCurrentUser() {
   if (localStorage.getItem('jwt')) {
     fetch(`${apiUrl}/user`, {
-      'method': 'GET',
-      'headers': {
+      method: 'GET',
+      headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('jwt')}`
       }
@@ -54,7 +55,8 @@ function App() {
       <Routes>
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
-        <Route path="/reset" component={ResetPassword} />
+        <Route path="/reset_password" component={ResetPassword} />
+        <Route path="/reset_email" component={ResetEmail} />
         <Route path="/contests" component={Contests} />
         <Route path="/games" component={Games} />
         <Route path="/users/:username" component={Users} />

@@ -1,8 +1,9 @@
-import { For, createSignal, onMount } from 'solid-js';
+import { For, Show, createSignal, onMount } from 'solid-js';
 import { Link, useNavigate } from "@solidjs/router";
 import { Box, Button, Center, Flex, HStack, Heading, SimpleGrid, Spacer, VStack } from "@hope-ui/solid";
 import { apiUrl } from "../utils";
 import style from "../Homepage.module.css";
+import { myself } from '../App';
 
 const Homepage = () => {
     const navigate = useNavigate();
@@ -11,7 +12,7 @@ const Homepage = () => {
     ]);
 
     const navigateToContest = (contest) => {
-        navigate(`/contest/${contest.id}`);
+        navigate(`/game/${contest.id}`);
     }
 
     onMount(() => {
@@ -41,12 +42,15 @@ const Homepage = () => {
         <Flex flex={1} direction="column" ml="5%" mr="5%">
             <Center id="banner" padding={"20px"} height="300px">
                 <VStack>
-                    <Heading as="h1" size="6xl" color="black" textAlign="center">欢迎来到Hiper</Heading>
+                    <Show when={myself()} fallback={
+                        <Heading as="h1" size="6xl" color="black" textAlign="center">欢迎来到Hiper</Heading>}>
+                        <Heading as="h1" size="6xl" color="black" textAlign="center">欢迎回到Hiper，{myself().nickname}</Heading>
+                    </Show>
                     <Heading as="h2" size="2xl" color="black" textAlign="center" mt="30px">一个专注于AI编程竞赛的平台</Heading>
                 </VStack>
             </Center>
             <Heading as="h2" size="2xl" color="black" ml="20px">
-                在这里你能参加
+                在这里你能玩到
             </Heading>
             <SimpleGrid width="100%" columns={2} id="contestlist" spacing="10px">
                 <For each={contestList()}>{(contest) => <Box class={style.contestBlock} onClick={() => navigateToContest(contest)}>

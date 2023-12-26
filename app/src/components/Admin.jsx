@@ -31,7 +31,8 @@ export default function Admin() {
             {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
                 }
             }
         )
@@ -44,7 +45,7 @@ export default function Admin() {
             })
             .then((data) => {
                 setMetadata(data.metadata);
-                setStates(data.base_contest.states);
+                setStates(data.states);
             });
 
         fetch(
@@ -52,7 +53,8 @@ export default function Admin() {
             {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
                 }
             }
         )

@@ -86,7 +86,7 @@ export default function Login() {
                         还没有账号？去注册
                     </Anchor>
                     <Spacer dir="auto" />
-                    <Anchor as={Link} href="/reset" margin="10px">
+                    <Anchor as={Link} href="/reset_password" margin="10px">
                         忘记密码？
                     </Anchor>
                 </HStack>

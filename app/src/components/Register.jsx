@@ -1,5 +1,5 @@
 import { createEffect, createSignal, Show } from "solid-js";
-import { Input, Button, VStack, HStack, Anchor } from "@hope-ui/solid";
+import { Input, Button, VStack, HStack, Anchor, notificationService } from "@hope-ui/solid";
 import { FormControl, FormLabel, FormErrorMessage } from "@hope-ui/solid";
 import { Link, useNavigate } from "@solidjs/router";
 import { apiUrl } from "../utils";
@@ -29,6 +29,8 @@ export default function Register() {
         }
     });
 
+    const navigate = useNavigate();
+
     function handleSubmit() {
         fetch(`${apiUrl}/users`, {
             method: 'POST',
@@ -42,10 +44,27 @@ export default function Register() {
                 "verification_code": formData().verifyCode
             })
         })
-            .then(data => {
-                console.log(data);
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            }).then((data) => {
+                notificationService.show({
+                    status: "success", /* or success, warning, danger */
+                    title: "注册成功！",
+                    description: "登陆一下试试吧！😍",
+                });
+                navigate('/login');
+            })
+            .catch((error) => {
+                notificationService.show({
+                    status: "danger", /* or success, warning, danger */
+                    title: "注册失败！",
+                    description: "用户名已存在或验证码错误！😒",
+                });
             });
-        useNavigate('/');
     }
 
     function sendVerifyCode() {
@@ -57,10 +76,28 @@ export default function Register() {
             },
             body: JSON.stringify({ "email": formData().email })
         })
-            .then(data => {
-                console.log(data);
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then((data) => {
+                notificationService.show({
+                    status: "success", /* or success, warning, danger */
+                    title: "验证码发送成功",
+                    description: "请注意查收！😊",
+                });
+                setCountDown(60);
+            })
+            .catch((error) => {
+                notificationService.show({
+                    status: "danger", /* or success, warning, danger */
+                    title: "验证码发送失败",
+                    description: "请检查邮箱是否正确！😒",
+                });
             });
-        setCountDown(60);
     }
 
     function usernameInvalid() {

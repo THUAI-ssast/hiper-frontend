@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "@solidjs/router"
 import { onMount, createSignal, Switch, Match, For, createEffect } from "solid-js";
 import { apiUrl } from "../utils";
-import { Flex, Heading, Image, Center, HStack, Button, VStack, Box, Table, Thead, Th, Tr, Td, Tbody, Spacer, Tag, Skeleton } from "@hope-ui/solid";
+import { Flex, Heading, Image, Center, HStack, Button, VStack, Box, Table, Thead, Th, Tr, Td, Tbody, Spacer, Tag, Skeleton, notificationService } from "@hope-ui/solid";
 import { SolidMarkdown } from "solid-markdown";
 import { Pagination } from "@ark-ui/solid";
 import { myself } from "../App";
@@ -31,6 +31,41 @@ export default function Game() {
         navigate('/game/' + params.id + '/submissions');
     }
 
+    function createContest() {
+        fetch(`${apiUrl}/contests`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+            },
+            body: JSON.stringify({
+                "game_id": Number(params.id),
+            }),
+        })
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then((data) => {
+                notificationService.show({
+                    status: "success", /* or success, warning, danger */
+                    title: "新建比赛成功！",
+                    description: "快去看看吧！😍",
+                });
+                navigate(`/contest/${data.id}`);
+            })
+            .catch((error) => {
+                notificationService.show({
+                    status: "danger", /* or success, warning, danger */
+                    title: "新建比赛失败！😢",
+                    description: error.message,
+                });
+            });
+    }
+
     onMount(() => {
         // fetch game data
         fetch(
@@ -57,6 +92,7 @@ export default function Game() {
                 }
                 setGame(data);
             });
+        console.log(myself());
     });
 
     return (
@@ -87,6 +123,9 @@ export default function Game() {
                             <Button margin="5px" variant={params.page == "matches" ? "outline" : "ghost"} onClick={navigateToMatches}>对局列表</Button>
                             <Button margin="5px" variant={params.page == "submissions" ? "outline" : "ghost"} onClick={navigateToSubmissions}>提交列表</Button>
                             {isAdmin() ? (<Button margin="5px" variant={"dashed"} onClick={() => navigate('/admin/game/' + params.id)}>管理</Button>) : (<></>)}
+                            <Show when={myself().permissions.can_create_game_or_contest}>
+                                <Button margin="5px" variant={"subtle"} onClick={createContest}>新建游戏</Button>
+                            </Show>
                         </HStack>
                         <Switch fallback={<Heading size={"3xl"}> 404 Not Found </Heading>}>
                             <Match when={params.page == null}>

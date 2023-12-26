@@ -4,18 +4,16 @@ import { FormControl, FormLabel, FormErrorMessage } from "@hope-ui/solid";
 import { apiUrl } from "../utils";
 import { useNavigate } from "@solidjs/router";
 
-export default function ResetPassword() {
+export default function ResetEmail() {
     const [emailStatus, setEmailStatus] = createSignal(false);
     const [verifyCodeStatus, setVerifyCodeStatus] = createSignal(false);
-    const [passwordStatus, setPasswordStatus] = createSignal(false);
-    const [confirmPasswordStatus, setConfirmPasswordStatus] = createSignal(false);
+    const [newEmailStatus, setNewEmailStatus] = createSignal(false);
 
     const [countDown, setCountDown] = createSignal(0);
 
     const [formData, setFormData] = createSignal({
         email: '',
-        password: '',
-        confirmPassword: '',
+        new_email: '',
         verifyCode: ''
     });
 
@@ -31,14 +29,14 @@ export default function ResetPassword() {
 
     function handleSubmit(event) {
         event.preventDefault();
-        fetch(`${apiUrl}/user/reset-password`, {
+        fetch(`${apiUrl}/user/reset-email`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 "email": formData().email,
-                "new_password": formData().password,
+                "new_email": formData().new_email,
                 "verification_code": formData().verifyCode
             })
         })
@@ -51,7 +49,7 @@ export default function ResetPassword() {
             }).then((data) => {
                 notificationService.show({
                     status: "success", /* or success, warning, danger */
-                    title: "重置密码成功！",
+                    title: "重置邮箱成功！",
                     description: "登陆一下试试吧！😍",
                 });
                 navigate('/login');
@@ -106,34 +104,22 @@ export default function ResetPassword() {
         return false;
     }
 
+    function newEmailInvalid() {
+        var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!re.test(formData().new_email)) {
+            return true;
+        }
+        return false;
+    }
+
     function emailUpdate(event) {
         setFormData({ ...formData(), email: event.target.value });
         setEmailStatus(emailInvalid());
     }
 
-    function passwordInvalid() {
-        if (formData().password.length < 8 || formData().password.length > 16) {
-            return true;
-        }
-        return false;
-    }
-
-
-    function passwordUpdate(event) {
-        setFormData({ ...formData(), password: event.target.value });
-        setPasswordStatus(passwordInvalid());
-    }
-
-    function confirmPasswordInvalid() {
-        if (formData().password != formData().confirmPassword) {
-            return true;
-        }
-        return false;
-    }
-
-    function confirmPasswordUpdate(event) {
-        setFormData({ ...formData(), confirmPassword: event.target.value });
-        setConfirmPasswordStatus(confirmPasswordInvalid());
+    function newEmailUpdate(event) {
+        setFormData({ ...formData(), new_email: event.target.value });
+        setNewEmailStatus(newEmailInvalid());
     }
 
     function verifyCodeInvalid() {
@@ -179,27 +165,17 @@ export default function ResetPassword() {
                     </Show>
                 </FormControl>
 
-                <FormControl required margin="10px" invalid={passwordStatus()}>
-                    <FormLabel for="password">新密码</FormLabel>
-                    <Input type="password" value={formData().password} onInput={(e) => passwordUpdate(e)} />
+                <FormControl required margin="10px" invalid={newEmailStatus()}>
+                    <FormLabel for="email">新邮箱</FormLabel>
+                    <Input type="email" value={formData().new_email} onInput={(e) => newEmailUpdate(e)} />
                     <Show
-                        when={passwordInvalid()}
+                        when={newEmailInvalid()}
                     >
-                        <FormErrorMessage>密码长度至少为8</FormErrorMessage>
+                        <FormErrorMessage>请输入邮箱</FormErrorMessage>
                     </Show>
                 </FormControl>
 
-                <FormControl required margin="10px" invalid={confirmPasswordStatus()}>
-                    <FormLabel for="confirmPassword">确认新密码</FormLabel>
-                    <Input type="password" value={formData().confirmPassword} onInput={(e) => confirmPasswordUpdate(e)} />
-                    <Show
-                        when={confirmPasswordInvalid()}
-                    >
-                        <FormErrorMessage>密码前后不一致</FormErrorMessage>
-                    </Show>
-                </FormControl>
-
-                <Button id="submitButton" disabled={emailStatus() || passwordStatus() || confirmPasswordStatus() || verifyCodeStatus()} type="submit" margin="10px">重置密码</Button>
+                <Button id="submitButton" disabled={emailStatus() || newEmailStatus() || verifyCodeStatus()} type="submit" margin="10px">重置密码</Button>
             </VStack>
         </form>
     );

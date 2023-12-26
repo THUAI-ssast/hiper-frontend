@@ -24,11 +24,12 @@ export default function Header() {
 
   function handleNewGame() {
     fetch(`${apiUrl}/games`, {
-      'method': 'POST',
-      'headers': {
+      method: 'POST',
+      headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-      }
+      },
+      body: "{}",
     })
       .then((response) => {
         if (response.status === 200) {
