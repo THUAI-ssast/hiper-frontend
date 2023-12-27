@@ -274,6 +274,7 @@ function Ranklist() {
             })
             .then((data) => {
                 setRanklist(data);
+                console.log(data);
             });
     });
 
@@ -313,7 +314,7 @@ function Ranklist() {
                                                     </HStack>
                                                 </Td>
                                                 <Td>{contestant.assigned_ai.id}</Td>
-                                                <Td>{contestant.performance}</Td>
+                                                <Td>{contestant.points}</Td>
                                             </Tr>
                                         }
                                     </For>
