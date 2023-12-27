@@ -8,8 +8,7 @@ import { myself } from '../App';
 const Homepage = () => {
     const navigate = useNavigate();
 
-    const [contestList, setContestList] = createSignal([
-    ]);
+    const [contestList, setContestList] = createSignal();
 
     const navigateToContest = (contest) => {
         navigate(`/game/${contest.id}`);
@@ -53,21 +52,25 @@ const Homepage = () => {
                 在这里你能玩到
             </Heading>
             <SimpleGrid width="100%" columns={2} id="contestlist" spacing="10px">
-                <For each={contestList()}>{(contest) => <Box class={style.contestBlock} onClick={() => navigateToContest(contest)}>
-                    <Box
-                        as="img"
-                        src={contest.metadata.cover_url}
-                        style={`width: 100%; height: 80%; object-fit: cover;`} />
-                    <Box padding="$4">
-                        <Box display="flex" alignItems="baseline">
-                            <Box mt="$1" fontWeight="$semibold" as="h4" fontSize="$2xl" lineHeight="$tight">
-                                {contest.metadata.title}
-                            </Box>
-                        </Box>
-                    </Box>
-                </ Box>
-                }
-                </For>
+                <Show when={contestList()}>
+                    <For each={contestList()}>{
+                        (contest) =>
+                            <Box class={style.contestBlock} onClick={() => navigateToContest(contest)}>
+                                <Box
+                                    as="img"
+                                    src={contest.metadata.cover_url}
+                                    style={`width: 100%; height: 80%; object-fit: cover;`} />
+                                <Box padding="$4">
+                                    <Box display="flex" alignItems="baseline">
+                                        <Box mt="$1" fontWeight="$semibold" as="h4" fontSize="$2xl" lineHeight="$tight">
+                                            {contest.metadata.title}
+                                        </Box>
+                                    </Box>
+                                </Box>
+                            </ Box>
+                    }
+                    </For>
+                </Show>
             </SimpleGrid>
         </ Flex >
     );

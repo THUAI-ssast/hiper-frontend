@@ -37,6 +37,43 @@ export default function Game() {
         navigate('/contest/' + params.id + '/upload_ai');
     }
 
+    const joinContest = () => {
+        fetch(
+            `${apiUrl}/contests/${params.id}/register`,
+            {
+                "method": "PUT",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("jwt")}`,
+                },
+                body: JSON.stringify({}),
+            }
+        )
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then((data) => {
+                notificationService.show({
+                    title: "操作成功",
+                    description: "已成功报名！🤩",
+                    status: "success",
+                    duration: 3000,
+                });
+            })
+            .catch((error) => {
+                notificationService.show({
+                    title: "操作失败",
+                    description: "请重试！😭",
+                    status: "danger",
+                    duration: 3000,
+                });
+            });
+    }
+
     onMount(() => {
         // fetch game data
         fetch(
@@ -57,7 +94,6 @@ export default function Game() {
                 }
             })
             .then((data) => {
-                console.log(data)
                 if (data.my_privilege == "admin") {
                     setIsAdmin(true);
                 }
@@ -118,6 +154,9 @@ export default function Game() {
                             <Spacer />
                             <Show when={isContestant() || isAdmin()}>
                                 <Button margin="5px" variant={params.page == "upload_ai" ? "outline" : "ghost"} onClick={navigateToUploadAI}>上传AI</Button>
+                            </Show>
+                            <Show when={!isContestant() && !isAdmin()}>
+                                <Button margin="5px" onClick={joinContest}>报名比赛</Button>
                             </Show>
                             <Show when={isAdmin()}>
                                 <Button margin="5px" variant={"dashed"} onClick={() => navigate('/admin/contest/' + params.id)}>管理</Button>
@@ -658,7 +697,7 @@ function UploadAI() {
                         </SelectListbox>
                     </SelectContent>
                 </Select>
-                <Input placeholder="AI文件" type="file" onInput={(e) => setAI(e.target.files[0])} />
+                <Input placeholder="AI文件" type="file" onInput={(e) => setAI(e.target.files[0])} accept=".zip" />
                 <Input placeholder="备注" onInput={(e) => setNote(e.target.value)} />
                 <Button onClick={handleNewAI} disabled={!AI() || selectedSdk() == "请选择SDK"}>上传</Button>
             </VStack>

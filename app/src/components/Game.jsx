@@ -94,7 +94,6 @@ export default function Game() {
                 }
             })
             .then((data) => {
-                console.log(data)
                 if (data.my_privilege == "admin") {
                     setIsAdmin(true);
                 }
@@ -103,7 +102,6 @@ export default function Game() {
                 }
                 setGame(data);
             });
-        console.log(myself());
         // fetch sdk data
         fetch(
             `${apiUrl}/games/${params.id}/sdks`,
@@ -472,7 +470,7 @@ function Submissions() {
 
     const updateSubmissionList = () => {
         fetch(
-            `${apiUrl}/games/${params.id}/ais?limit=${5}&offset=${5 * (currentPage() - 1)}&username=${myself.username}`,
+            `${apiUrl}/games/${params.id}/ais?limit=${5}&offset=${5 * (currentPage() - 1)}&username=${myself().username}`,
             {
                 "method": "GET",
                 "headers": {
@@ -710,7 +708,7 @@ function UploadAI() {
                         </SelectListbox>
                     </SelectContent>
                 </Select>
-                <Input placeholder="AI文件" type="file" onInput={(e) => setAI(e.target.files[0])} />
+                <Input placeholder="AI文件" type="file" onInput={(e) => setAI(e.target.files[0])} accept=".zip" />
                 <Input placeholder="备注" onInput={(e) => setNote(e.target.value)} />
                 <Button onClick={handleNewAI} disabled={!AI() || selectedSdk() == "请选择SDK"}>上传</Button>
             </VStack>

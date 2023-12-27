@@ -1,4 +1,4 @@
-import { Center, FormControl, FormLabel, Switch, Input, Divider, Box, Button, Tabs, TabList, Tab, TabPanel, Heading, Flex, Skeleton, Image, Grid, GridItem } from "@hope-ui/solid";
+import { Center, FormControl, FormLabel, Switch, Input, Divider, Box, Button, Tabs, TabList, Tab, TabPanel, Heading, Flex, Skeleton, Image, Grid, GridItem, notificationService } from "@hope-ui/solid";
 import { For, Show, createSignal, onMount } from "solid-js";
 import { apiUrl } from "../utils";
 import { useParams } from "@solidjs/router";
@@ -83,7 +83,8 @@ export default function ContextAdmin() {
             {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
                 }
             }
         )
@@ -99,7 +100,6 @@ export default function ContextAdmin() {
                 cpyEditingSdk[index].build_ai_dockerfile = data.build_ai.dockerfile;
                 cpyEditingSdk[index].run_ai_dockerfile = data.run_ai.dockerfile;
                 setEditingSdks(cpyEditingSdk);
-                console.log(cpyEditingSdk[index]);
             });
     }
 
@@ -110,7 +110,7 @@ export default function ContextAdmin() {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
                 },
                 body: JSON.stringify(metadata())
             }
@@ -123,7 +123,22 @@ export default function ContextAdmin() {
                 }
             })
             .then((data) => {
-                console.log("修改成功！");
+                notificationService.show({
+                    title: '修改成功',
+                    description: '游戏信息已修改',
+                    type: 'success',
+                    duration: 3000
+                }
+                )
+            })
+            .catch((error) => {
+                notificationService.show({
+                    title: '修改失败',
+                    description: '游戏信息修改失败',
+                    type: 'danger',
+                    duration: 3000
+                }
+                )
             });
 
     }
@@ -135,7 +150,7 @@ export default function ContextAdmin() {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
                 },
                 body: JSON.stringify(states())
             }
@@ -148,7 +163,22 @@ export default function ContextAdmin() {
                 }
             })
             .then((data) => {
-                console.log("修改成功！");
+                notificationService.show({
+                    title: '修改成功',
+                    description: '游戏状态已修改',
+                    type: 'success',
+                    duration: 3000
+                }
+                )
+            })
+            .catch((error) => {
+                notificationService.show({
+                    title: '修改失败',
+                    description: '游戏状态修改失败',
+                    type: 'danger',
+                    duration: 3000
+                }
+                )
             });
     }
 
@@ -161,14 +191,13 @@ export default function ContextAdmin() {
         if (editingSdks()[index].sdk) {
             body.sdk = editingSdks()[index].sdk;
         }
-        console.log(body);
 
         fetch(
             `${apiUrl}/games/${params.id}/sdks/${sdks()[index].id}`,
             {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
                 },
                 body: body
             }
@@ -181,33 +210,54 @@ export default function ContextAdmin() {
                 }
             })
             .then((data) => {
-                console.log("修改成功！");
+                notificationService.show({
+                    title: '修改成功',
+                    description: 'SDK信息已修改',
+                    type: 'success',
+                    duration: 3000
+                }
+                )
+            }
+            )
+            .catch((error) => {
+                notificationService.show({
+                    title: '修改失败',
+                    description: 'SDK信息修改失败',
+                    type: 'danger',
+                    duration: 3000
+                }
+                )
             });
     }
 
 
     function handleNewSdk() {
-        let body = {}
-        body.name = newSdk().name;
-        body.readme = newSdk().readme;
-        body.build_ai_dockerfile = newSdk().build_ai_dockerfile;
-        body.run_ai_dockerfile = newSdk().run_ai_dockerfile;
+        let body = new FormData();
+        body.append("build_ai_dockerfile", newSdk().build_ai_dockerfile);
+        body.append("run_ai_dockerfile", newSdk().run_ai_dockerfile);
+        body.append("description", newSdk().readme);
+        body.append("name", newSdk().name);
         if (newSdk().sdk) {
-            body.sdk = newSdk().sdk;
+            body.append("sdk", newSdk().sdk);
         }
         else {
-            console.log("sdk文件为空!");
+            notificationService.show({
+                title: '新建失败',
+                description: 'SDK文件未上传',
+                type: 'danger',
+                duration: 3000
+            }
+            )
             return;
         }
 
-        console.log(body);
 
         fetch(
             `${apiUrl}/games/${params.id}/sdks`,
             {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
                 },
                 body: body
             }
@@ -220,8 +270,25 @@ export default function ContextAdmin() {
                 }
             })
             .then((data) => {
-                console.log("修改成功！");
-            });
+                notificationService.show({
+                    title: '新建成功',
+                    description: 'SDK已新建',
+                    type: 'success',
+                    duration: 3000
+                }
+                )
+            }
+            )
+            .catch((error) => {
+                notificationService.show({
+                    title: '新建失败',
+                    description: 'SDK新建失败',
+                    type: 'danger',
+                    duration: 3000
+                }
+                )
+            }
+            );
     }
 
     return (

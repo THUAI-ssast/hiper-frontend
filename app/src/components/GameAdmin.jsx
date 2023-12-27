@@ -87,7 +87,8 @@ export default function GameAdmin() {
             {
                 method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
                 }
             }
         )
@@ -103,7 +104,6 @@ export default function GameAdmin() {
                 cpyEditingSdk[index].build_ai_dockerfile = data.build_ai.dockerfile;
                 cpyEditingSdk[index].run_ai_dockerfile = data.run_ai.dockerfile;
                 setEditingSdks(cpyEditingSdk);
-                console.log(cpyEditingSdk[index]);
             });
     }
 
@@ -114,7 +114,7 @@ export default function GameAdmin() {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
                 },
                 body: JSON.stringify(metadata())
             }
@@ -127,7 +127,20 @@ export default function GameAdmin() {
                 }
             })
             .then((data) => {
-                console.log("修改成功！");
+                notificationService.show({
+                    title: "修改成功！",
+                    description: "游戏信息修改成功！",
+                    type: "success",
+                    duration: 3000,
+                })
+            })
+            .catch((error) => {
+                notificationService.show({
+                    title: "修改失败！",
+                    description: "游戏信息修改失败！",
+                    type: "danger",
+                    duration: 3000,
+                })
             });
     }
 
@@ -138,7 +151,7 @@ export default function GameAdmin() {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
                 },
                 body: JSON.stringify(states())
             }
@@ -151,7 +164,20 @@ export default function GameAdmin() {
                 }
             })
             .then((data) => {
-                console.log("修改成功！");
+                notificationService.show({
+                    title: "修改成功！",
+                    description: "游戏属性修改成功！",
+                    type: "success",
+                    duration: 3000,
+                })
+            })
+            .catch((error) => {
+                notificationService.show({
+                    title: "修改失败！",
+                    description: "游戏属性修改失败！",
+                    type: "danger",
+                    duration: 3000,
+                })
             });
     }
 
@@ -166,19 +192,18 @@ export default function GameAdmin() {
             notificationService.show({
                 title: "游戏逻辑文件为空！",
                 description: "请上传游戏逻辑文件！",
-                type: "fanger",
+                type: "danger",
                 duration: 3000,
             })
             return;
         }
-        console.log(body);
 
         fetch(
             `${apiUrl}/games/${params.id}/game_logic`,
             {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
                 },
                 body: body
             }
@@ -209,14 +234,13 @@ export default function GameAdmin() {
         if (editingSdks()[index].sdk) {
             body.append("sdk", editingSdks()[index].sdk);
         }
-        console.log(body);
 
         fetch(
             `${apiUrl}/games/${params.id}/sdks/${sdks()[index].id}`,
             {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
                 },
                 body: body
             }
@@ -229,33 +253,49 @@ export default function GameAdmin() {
                 }
             })
             .then((data) => {
-                console.log("修改成功！");
+                notificationService.show({
+                    title: "修改成功！",
+                    description: "SDK修改成功！",
+                    type: "success",
+                    duration: 3000,
+                })
+            })
+            .catch((error) => {
+                notificationService.show({
+                    title: "修改失败！",
+                    description: "SDK修改失败！",
+                    type: "danger",
+                    duration: 3000,
+                })
             });
     }
 
 
     function handleNewSdk() {
-        let body = {}
-        body.name = newSdk().name;
-        body.readme = newSdk().readme;
-        body.build_ai_dockerfile = newSdk().build_ai_dockerfile;
-        body.run_ai_dockerfile = newSdk().run_ai_dockerfile;
+        let body = new FormData();
+        body.append("build_ai_dockerfile", newSdk().build_ai_dockerfile);
+        body.append("run_ai_dockerfile", newSdk().run_ai_dockerfile);
+        body.append("description", newSdk().readme);
+        body.append("name", newSdk().name);
         if (newSdk().sdk) {
-            body.sdk = newSdk().sdk;
+            body.append("sdk", newSdk().sdk);
         }
         else {
-            console.log("sdk文件为空!");
+            notificationService.show({
+                title: "SDK文件为空！",
+                description: "请上传SDK文件！",
+                type: "danger",
+                duration: 3000,
+            })
             return;
         }
-
-        console.log(body);
 
         fetch(
             `${apiUrl}/games/${params.id}/sdks`,
             {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
                 },
                 body: body
             }
@@ -268,7 +308,20 @@ export default function GameAdmin() {
                 }
             })
             .then((data) => {
-                console.log("修改成功！");
+                notificationService.show({
+                    title: "新建成功！",
+                    description: "SDK新建成功！",
+                    type: "success",
+                    duration: 3000,
+                })
+            })
+            .catch((error) => {
+                notificationService.show({
+                    title: "新建失败！",
+                    description: "SDK新建失败！",
+                    type: "danger",
+                    duration: 3000,
+                })
             });
     }
     return (
