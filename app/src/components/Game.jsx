@@ -72,6 +72,42 @@ export default function Game() {
                 });
             });
     }
+    function deleteContest() {
+        fetch(
+            `${apiUrl}/games/${params.id}`,
+            {
+                "method": "DELETE",
+                "headers": {
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                },
+            }
+        )
+            .then((response) => {
+                if (response.status === 200) {
+                    notificationService.show({
+                        title: "操作成功",
+                        description: "已成功删除！🤩",
+                        status: "success",
+                        duration: 3000,
+                    });
+                    navigate('/games')
+                } else {
+                    throw new Error(response.statusText);
+                }
+            }
+            )
+            .catch((error) => {
+                notificationService.show({
+                    title: "操作失败",
+                    description: "请重试！😭",
+                    status: "danger",
+                    duration: 3000,
+                });
+            }
+            );
+    }
+
 
 
     onMount(() => {
@@ -167,6 +203,7 @@ export default function Game() {
                             </Show>
                             <Show when={isAdmin()}>
                                 <Button margin="5px" variant={"dashed"} onClick={() => navigate('/admin/game/' + params.id)}>管理</Button>
+                                <Button colorScheme={"danger"} variant={"dashed"} onClick={deleteContest}>删除</Button>
                             </Show>
                             <Show when={myself()}>
                                 <Show when={myself().permissions.can_create_game_or_contest}>

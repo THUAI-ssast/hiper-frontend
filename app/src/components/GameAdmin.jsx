@@ -22,6 +22,8 @@ export default function GameAdmin() {
         "build_game_logic_dockerfile": "",
         "run_game_logic_dockerfile": ""
     });
+
+    const [contestScript, setContestScript] = createSignal("");
     const [states, setStates] = createSignal();
 
     const [loaded, setLoaded] = createSignal(false);
@@ -130,7 +132,7 @@ export default function GameAdmin() {
                 notificationService.show({
                     title: "修改成功！",
                     description: "游戏信息修改成功！",
-                    type: "success",
+                    status: "success",
                     duration: 3000,
                 })
             })
@@ -138,7 +140,7 @@ export default function GameAdmin() {
                 notificationService.show({
                     title: "修改失败！",
                     description: "游戏信息修改失败！",
-                    type: "danger",
+                    status: "danger",
                     duration: 3000,
                 })
             });
@@ -167,7 +169,7 @@ export default function GameAdmin() {
                 notificationService.show({
                     title: "修改成功！",
                     description: "游戏属性修改成功！",
-                    type: "success",
+                    status: "success",
                     duration: 3000,
                 })
             })
@@ -175,7 +177,44 @@ export default function GameAdmin() {
                 notificationService.show({
                     title: "修改失败！",
                     description: "游戏属性修改失败！",
-                    type: "danger",
+                    status: "danger",
+                    duration: 3000,
+                })
+            });
+    }
+
+    function changeGameScript() {
+        fetch(
+            `${apiUrl}/games/${params.id}/contest_script`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                },
+                body: JSON.stringify({ "contest_script": contestScript() })
+            }
+        )
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then((data) => {
+                notificationService.show({
+                    title: "修改成功！",
+                    description: "赛事脚本修改成功！",
+                    status: "success",
+                    duration: 3000,
+                })
+            })
+            .catch((error) => {
+                notificationService.show({
+                    title: "修改失败！",
+                    description: "赛事脚本修改失败！",
+                    status: "danger",
                     duration: 3000,
                 })
             });
@@ -192,7 +231,7 @@ export default function GameAdmin() {
             notificationService.show({
                 title: "游戏逻辑文件为空！",
                 description: "请上传游戏逻辑文件！",
-                type: "danger",
+                status: "danger",
                 duration: 3000,
             })
             return;
@@ -219,7 +258,7 @@ export default function GameAdmin() {
                 notificationService.show({
                     title: "修改成功！",
                     description: "游戏逻辑修改成功！",
-                    type: "success",
+                    status: "success",
                     duration: 3000,
                 })
             });
@@ -256,7 +295,7 @@ export default function GameAdmin() {
                 notificationService.show({
                     title: "修改成功！",
                     description: "SDK修改成功！",
-                    type: "success",
+                    status: "success",
                     duration: 3000,
                 })
             })
@@ -264,7 +303,7 @@ export default function GameAdmin() {
                 notificationService.show({
                     title: "修改失败！",
                     description: "SDK修改失败！",
-                    type: "danger",
+                    status: "danger",
                     duration: 3000,
                 })
             });
@@ -284,7 +323,7 @@ export default function GameAdmin() {
             notificationService.show({
                 title: "SDK文件为空！",
                 description: "请上传SDK文件！",
-                type: "danger",
+                status: "danger",
                 duration: 3000,
             })
             return;
@@ -311,7 +350,7 @@ export default function GameAdmin() {
                 notificationService.show({
                     title: "新建成功！",
                     description: "SDK新建成功！",
-                    type: "success",
+                    status: "success",
                     duration: 3000,
                 })
             })
@@ -319,7 +358,7 @@ export default function GameAdmin() {
                 notificationService.show({
                     title: "新建失败！",
                     description: "SDK新建失败！",
-                    type: "danger",
+                    status: "danger",
                     duration: 3000,
                 })
             });
@@ -329,6 +368,7 @@ export default function GameAdmin() {
             <TabList>
                 <Tab>基本信息</Tab>
                 <Tab>SDK</Tab>
+                <Tab>赛事脚本</Tab>
                 <Tab>游戏逻辑</Tab>
             </TabList>
             <TabPanel height={"95%"}>
@@ -463,6 +503,17 @@ export default function GameAdmin() {
             </TabPanel>
             <TabPanel>
                 <VStack gap={"20px"}>
+                    <FormControl mb="20px" height={"200px"}>
+                        <FormLabel>赛事脚本</FormLabel>
+                        <Box borderWidth="1px" padding="3px" height="95%" borderColor="rgba(0, 0, 0, 0.2)" borderRadius="5px">
+                            <MonacoEditor language="javascript" onChange={(string, event) => { setContestScript(string) }} />
+                        </Box>
+                    </ FormControl>
+                    <Button onClick={changeGameScript}>修改赛事脚本</Button>
+                </VStack>
+            </TabPanel>
+            <TabPanel>
+                <VStack gap={"20px"}>
                     <FormControl mb="10px">
                         <FormLabel>游戏逻辑文件</FormLabel>
                         <Input type="file" onInput={(event) => setGameLogic({ ...gameLogic(), game_logic_file: event.target.files[0] })} />
@@ -470,7 +521,7 @@ export default function GameAdmin() {
                     <FormControl mb="20px" height={"200px"}>
                         <FormLabel>构建Dockerfile</FormLabel>
                         <Box borderWidth="1px" padding="3px" height="95%" borderColor="rgba(0, 0, 0, 0.2)" borderRadius="5px">
-                            <MonacoEditor language="markdown" onChange={(string, event) => { setGameLogic({ ...gameLogic(), build_game_logic_dockerfile: string }) }} />
+                            <MonacoEditor language="dockerfile" onChange={(string, event) => { setGameLogic({ ...gameLogic(), build_game_logic_dockerfile: string }) }} />
                         </Box>
                     </ FormControl>
                     <FormControl mb="20px" height={"200px"}>

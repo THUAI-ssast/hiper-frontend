@@ -1,4 +1,4 @@
-import { Center, FormControl, FormLabel, Switch, Input, Divider, Box, Button, Tabs, TabList, Tab, TabPanel, Heading, Flex, Skeleton, Image, Grid, GridItem, notificationService } from "@hope-ui/solid";
+import { Center, FormControl, FormLabel, Switch, Input, Divider, Box, Button, Tabs, TabList, Tab, TabPanel, Heading, Flex, Skeleton, Image, Grid, GridItem, notificationService, VStack } from "@hope-ui/solid";
 import { For, Show, createSignal, onMount } from "solid-js";
 import { apiUrl } from "../utils";
 import { useParams } from "@solidjs/router";
@@ -19,7 +19,7 @@ export default function ContextAdmin() {
         "run_ai_dockerfile": ""
     });
     const [states, setStates] = createSignal();
-
+    const [contestScript, setContestScript] = createSignal("");
     const [loaded, setLoaded] = createSignal(false);
 
     onMount(() => {
@@ -77,6 +77,43 @@ export default function ContextAdmin() {
 
     });
 
+    function changeGameScript() {
+        fetch(
+            `${apiUrl}/games/${params.id}/contest_script`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                },
+                body: JSON.stringify({ "contest_script": contestScript() })
+            }
+        )
+            .then((response) => {
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error(response.statusText);
+                }
+            })
+            .then((data) => {
+                notificationService.show({
+                    title: "修改成功！",
+                    description: "赛事脚本修改成功！",
+                    status: "success",
+                    duration: 3000,
+                })
+            })
+            .catch((error) => {
+                notificationService.show({
+                    title: "修改失败！",
+                    description: "赛事脚本修改失败！",
+                    status: "danger",
+                    duration: 3000,
+                })
+            });
+    }
+
     function getFullSdk(index) {
         fetch(
             `${apiUrl}/games/${params.id}/sdks/${sdks()[index].id}`,
@@ -126,7 +163,7 @@ export default function ContextAdmin() {
                 notificationService.show({
                     title: '修改成功',
                     description: '游戏信息已修改',
-                    type: 'success',
+                    status: 'success',
                     duration: 3000
                 }
                 )
@@ -135,7 +172,7 @@ export default function ContextAdmin() {
                 notificationService.show({
                     title: '修改失败',
                     description: '游戏信息修改失败',
-                    type: 'danger',
+                    status: 'danger',
                     duration: 3000
                 }
                 )
@@ -166,7 +203,7 @@ export default function ContextAdmin() {
                 notificationService.show({
                     title: '修改成功',
                     description: '游戏状态已修改',
-                    type: 'success',
+                    status: 'success',
                     duration: 3000
                 }
                 )
@@ -175,7 +212,7 @@ export default function ContextAdmin() {
                 notificationService.show({
                     title: '修改失败',
                     description: '游戏状态修改失败',
-                    type: 'danger',
+                    status: 'danger',
                     duration: 3000
                 }
                 )
@@ -213,7 +250,7 @@ export default function ContextAdmin() {
                 notificationService.show({
                     title: '修改成功',
                     description: 'SDK信息已修改',
-                    type: 'success',
+                    status: 'success',
                     duration: 3000
                 }
                 )
@@ -223,7 +260,7 @@ export default function ContextAdmin() {
                 notificationService.show({
                     title: '修改失败',
                     description: 'SDK信息修改失败',
-                    type: 'danger',
+                    status: 'danger',
                     duration: 3000
                 }
                 )
@@ -244,7 +281,7 @@ export default function ContextAdmin() {
             notificationService.show({
                 title: '新建失败',
                 description: 'SDK文件未上传',
-                type: 'danger',
+                status: 'danger',
                 duration: 3000
             }
             )
@@ -273,7 +310,7 @@ export default function ContextAdmin() {
                 notificationService.show({
                     title: '新建成功',
                     description: 'SDK已新建',
-                    type: 'success',
+                    status: 'success',
                     duration: 3000
                 }
                 )
@@ -283,7 +320,7 @@ export default function ContextAdmin() {
                 notificationService.show({
                     title: '新建失败',
                     description: 'SDK新建失败',
-                    type: 'danger',
+                    status: 'danger',
                     duration: 3000
                 }
                 )
@@ -296,6 +333,7 @@ export default function ContextAdmin() {
             <TabList>
                 <Tab>基本信息</Tab>
                 <Tab>SDK</Tab>
+                <Tab>赛事脚本</Tab>
             </TabList>
             <TabPanel height={"95%"}>
                 <Show when={metadata() && states()}>
@@ -427,6 +465,17 @@ export default function ContextAdmin() {
                         </Flex>
                     </Flex>
                 </Show>
+            </TabPanel>
+            <TabPanel>
+                <VStack gap={"20px"}>
+                    <FormControl mb="20px" height={"200px"}>
+                        <FormLabel>赛事脚本</FormLabel>
+                        <Box borderWidth="1px" padding="3px" height="95%" borderColor="rgba(0, 0, 0, 0.2)" borderRadius="5px">
+                            <MonacoEditor language="javascript" onChange={(string, event) => { setContestScript(string) }} />
+                        </Box>
+                    </ FormControl>
+                    <Button onClick={changeGameScript}>修改赛事脚本</Button>
+                </VStack>
             </TabPanel>
         </Tabs>
     )

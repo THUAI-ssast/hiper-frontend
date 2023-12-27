@@ -74,6 +74,42 @@ export default function Game() {
             });
     }
 
+    function deleteContest() {
+        fetch(
+            `${apiUrl}/games/${params.id}`,
+            {
+                "method": "DELETE",
+                "headers": {
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+                },
+            }
+        )
+            .then((response) => {
+                if (response.status === 200) {
+                    notificationService.show({
+                        title: "操作成功",
+                        description: "已成功删除！🤩",
+                        status: "success",
+                        duration: 3000,
+                    });
+                    navigate('/games')
+                } else {
+                    throw new Error(response.statusText);
+                }
+            }
+            )
+            .catch((error) => {
+                notificationService.show({
+                    title: "操作失败",
+                    description: "请重试！😭",
+                    status: "danger",
+                    duration: 3000,
+                });
+            }
+            );
+    }
+
     onMount(() => {
         if (myself() == null) {
             notificationService.show({
@@ -169,6 +205,7 @@ export default function Game() {
                             </Show>
                             <Show when={isAdmin()}>
                                 <Button margin="5px" variant={"dashed"} onClick={() => navigate('/admin/contest/' + params.id)}>管理</Button>
+                                <Button colorScheme={"danger"} variant={"dashed"} onClick={deleteContest}>删除</Button>
                             </Show>
                         </HStack>
                         <Switch fallback={<Heading size={"3xl"}> 404 Not Found </Heading>}>
