@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@solidjs/router";
 import { HStack, Heading, Spacer, Box, Button, Image, Anchor, Avatar, Menu, MenuTrigger, MenuItem, MenuContent, createDisclosure, Modal, ModalOverlay, ModalContent, ModalCloseButton, ModalHeader, ModalBody, ModalFooter } from "@hope-ui/solid";
-import logo from '../logo.svg';
+import logo from '../logo.png';
 import { createSignal, Show } from "solid-js";
 import { myself, setMyself } from "../App";
 import { apiUrl } from "../utils";
@@ -90,7 +90,7 @@ export default function Header() {
           onMouseLeave={handleMouseLeave}
           style={`background-color: ${bgColor()}; transition: background-color 0.3s ease;`}
         >
-          <Image src={logo} alt="logo" width="40px" />
+          <Image src={logo} alt="logo" width={"35px"} height={"35px"} />
           <Heading class="title" size="xl" fontWeight="$bold" fontStyle={"oblique"}>
             Hiper
           </Heading>

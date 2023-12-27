@@ -75,6 +75,15 @@ export default function Game() {
 
 
     onMount(() => {
+        if (myself() == null) {
+            notificationService.show({
+                title: "请先登录",
+                description: "请先登录！😭",
+                status: "warning",
+                duration: 3000,
+            });
+            navigate('/login')
+        }
         // fetch game data
         fetch(
             `${apiUrl}/games/${params.id}`,
